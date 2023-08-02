@@ -29,6 +29,7 @@ internal unsafe struct Queue<T> : IDisposable where T : unmanaged
 
     public int Count { get; private set; }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Clear()
     {
         if (Count != 0) Count = 0;
@@ -37,6 +38,7 @@ internal unsafe struct Queue<T> : IDisposable where T : unmanaged
         ++_version;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Enqueue(in T item)
     {
         if (Count == length)
@@ -47,12 +49,13 @@ internal unsafe struct Queue<T> : IDisposable where T : unmanaged
         ++_version;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public T Dequeue()
     {
         var head = _head;
         var array = _array;
         if (Count == 0)
-            throw new InvalidOperationException("EmptyQueue");
+            ThrowHelper.QueueEmptyException();
 
         var obj = array[head];
         MoveNext(ref _head);
@@ -61,6 +64,7 @@ internal unsafe struct Queue<T> : IDisposable where T : unmanaged
         return obj;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool TryDequeue(out T result)
     {
         var head = _head;
@@ -78,13 +82,15 @@ internal unsafe struct Queue<T> : IDisposable where T : unmanaged
         return true;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public T Peek()
     {
         if (Count == 0)
-            throw new InvalidOperationException("EmptyQueue");
+            ThrowHelper.QueueEmptyException();
         return _array[_head];
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool TryPeek(out T result)
     {
         if (Count == 0)
@@ -97,6 +103,7 @@ internal unsafe struct Queue<T> : IDisposable where T : unmanaged
         return true;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void Grow(int capacity)
     {
         var val1 = 2 * length;
@@ -136,6 +143,7 @@ internal unsafe struct Queue<T> : IDisposable where T : unmanaged
         ++_version;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void MoveNext(ref int index)
     {
         var num = index + 1;

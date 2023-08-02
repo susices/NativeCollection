@@ -4,9 +4,9 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-namespace NativeCollection.Internal;
+namespace NativeCollection;
 
-internal unsafe partial class SortedSet<T> : ICollection<T>, IDisposable where T : unmanaged, IEquatable<T>
+public unsafe partial class SortedSet<T> : ICollection<T>, IDisposable where T : unmanaged, IEquatable<T>
 {
     private readonly IComparer<T> comparer = default!;
     private int count;
@@ -55,6 +55,7 @@ internal unsafe partial class SortedSet<T> : ICollection<T>, IDisposable where T
         }
     }
 
+    
     public int Count
     {
         get
@@ -66,16 +67,19 @@ internal unsafe partial class SortedSet<T> : ICollection<T>, IDisposable where T
 
     bool ICollection<T>.IsReadOnly => false;
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void CopyTo(T[] array, int index)
     {
         CopyTo(array, index, Count);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Remove(T item)
     {
         return DoRemove(item);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     void ICollection<T>.Add(T item)
     {
         Add(item);
@@ -105,6 +109,7 @@ internal unsafe partial class SortedSet<T> : ICollection<T>, IDisposable where T
         ++version;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public virtual bool Contains(T item)
     {
         return FindNode(item) != null;
@@ -126,6 +131,7 @@ internal unsafe partial class SortedSet<T> : ICollection<T>, IDisposable where T
         version = 0;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void CopyTo(T[] array)
     {
         CopyTo(array, 0, Count);
@@ -194,21 +200,25 @@ internal unsafe partial class SortedSet<T> : ICollection<T>, IDisposable where T
         return true;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal virtual void VersionCheck(bool updateCount = false)
     {
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal virtual int TotalCount()
     {
         return Count;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal virtual bool IsWithinRange(T item)
     {
         return true;
     }
 
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Add(T item)
     {
         return AddIfNotPresent(item);
@@ -427,6 +437,7 @@ internal unsafe partial class SortedSet<T> : ICollection<T>, IDisposable where T
     /// <param name="parent">The (possibly <c>null</c>) parent.</param>
     /// <param name="child">The child node to replace.</param>
     /// <param name="newChild">The node to replace <paramref name="child" /> with.</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void ReplaceChildOrRoot(Node* parent, Node* child, Node* newChild)
     {
         if (parent != null)
@@ -472,6 +483,7 @@ internal unsafe partial class SortedSet<T> : ICollection<T>, IDisposable where T
         ReplaceChildOrRoot(parentOfMatch, match, successor!);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal virtual Node* FindNode(T item)
     {
         var current = root;
@@ -486,11 +498,13 @@ internal unsafe partial class SortedSet<T> : ICollection<T>, IDisposable where T
         return null;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal void UpdateVersion()
     {
         ++version;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static int Log2(int value)
     {
         return BitOperations.Log2((uint)value);
@@ -513,7 +527,7 @@ internal unsafe partial class SortedSet<T> : ICollection<T>, IDisposable where T
         private readonly SortedSet<T> _tree;
         private readonly int _version;
 
-        private readonly Stack<IntPtr>* _stack;
+        private readonly Internal.Stack<IntPtr>* _stack;
         private readonly bool _reverse;
 
         internal Enumerator(SortedSet<T> set)

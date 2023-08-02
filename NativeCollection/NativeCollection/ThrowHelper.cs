@@ -9,4 +9,16 @@ public static class ThrowHelper
     {
         throw new ArgumentOutOfRangeException();
     }
+
+    [DoesNotReturn]
+    public static void StackEmptyException()
+    {
+        throw new InvalidOperationException("Stack Empty");
+    }
+
+    [DoesNotReturn]
+    public static void QueueEmptyException()
+    {
+        throw new InvalidOperationException("EmptyQueue");
+    }
 }

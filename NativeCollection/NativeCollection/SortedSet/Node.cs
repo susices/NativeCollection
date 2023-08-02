@@ -2,7 +2,7 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-namespace NativeCollection.Internal;
+namespace NativeCollection;
 
 internal enum NodeColor : byte
 {
@@ -18,7 +18,7 @@ internal enum TreeRotation : byte
     RightLeft
 }
 
-internal unsafe partial class SortedSet<T>
+public unsafe partial class SortedSet<T>
 {
     internal struct Node : IEquatable<Node>
     {

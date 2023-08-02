@@ -30,6 +30,7 @@ internal unsafe struct Stack<T> : IDisposable where T : unmanaged, IEquatable<T>
 
     public int Count { get; private set; }
 
+    
     public void Clear()
     {
         ArrayLength = 0;
@@ -37,6 +38,7 @@ internal unsafe struct Stack<T> : IDisposable where T : unmanaged, IEquatable<T>
         _version++;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Contains(in T obj)
     {
         var count = Count;
@@ -46,16 +48,18 @@ internal unsafe struct Stack<T> : IDisposable where T : unmanaged, IEquatable<T>
         return false;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public T Peak()
     {
-        if (Count == 0) throw new InvalidOperationException("Stack Empty");
+        if (Count == 0) ThrowHelper.StackEmptyException();
         return _array[Count - 1];
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public T Pop()
     {
         if (Count == 0)
-            throw new InvalidOperationException("Stack Empty");
+            ThrowHelper.StackEmptyException();
 
         _version++;
         var obj = _array[--Count];
@@ -63,6 +67,7 @@ internal unsafe struct Stack<T> : IDisposable where T : unmanaged, IEquatable<T>
         return obj;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool TryPop(out T result)
     {
         var index = Count - 1;
@@ -79,6 +84,7 @@ internal unsafe struct Stack<T> : IDisposable where T : unmanaged, IEquatable<T>
         return true;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Push(in T obj)
     {
         if (Count == ArrayLength)
