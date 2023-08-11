@@ -21,4 +21,27 @@ public static class ThrowHelper
     {
         throw new InvalidOperationException("EmptyQueue");
     }
+    
+    [DoesNotReturn]
+    public static void ListInitialCapacityException()
+    {
+        throw new ArgumentOutOfRangeException();
+    }
+
+    [DoesNotReturn]
+    public static void IndexMustBeLessException()
+    {
+        throw new ArgumentOutOfRangeException("IndexMustBeLess");
+    }
+    
+    
+    [DoesNotReturn]
+    public static void ListSmallCapacity()
+    {
+        throw new ArgumentOutOfRangeException("SmallCapacity");
+    }
+    
+   
+    
+    
 }

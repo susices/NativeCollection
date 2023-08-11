@@ -16,9 +16,8 @@ internal unsafe struct Queue<T> : IDisposable where T : unmanaged
     {
         if (capacity < 0) throw new ArgumentOutOfRangeException("Capacity<0");
 
-        var queue = (Queue<T>*)NativeMemory.Alloc((uint)Unsafe.SizeOf<Queue<T>>());
-        queue->_array = (T*)NativeMemory.Alloc((uint)capacity, (uint)Unsafe.SizeOf<T>());
-        GC.AddMemoryPressure((uint)Unsafe.SizeOf<Queue<T>>() + capacity * Unsafe.SizeOf<T>());
+        var queue = (Queue<T>*)NativeMemoryHelper.Alloc((uint)Unsafe.SizeOf<Queue<T>>());
+        queue->_array = (T*)NativeMemoryHelper.Alloc((uint)capacity, (uint)Unsafe.SizeOf<T>());
         queue->length = capacity;
         queue->_head = 0;
         queue->_tail = 0;
@@ -117,8 +116,7 @@ internal unsafe struct Queue<T> : IDisposable where T : unmanaged
 
     private void SetCapacity(int capacity)
     {
-        var destinationArray = (T*)NativeMemory.Alloc((uint)capacity, (uint)Unsafe.SizeOf<T>());
-        GC.AddMemoryPressure(capacity * Unsafe.SizeOf<T>());
+        var destinationArray = (T*)NativeMemoryHelper.Alloc((uint)capacity, (uint)Unsafe.SizeOf<T>());
         if (Count > 0)
         {
             if (_head < _tail)
@@ -134,7 +132,7 @@ internal unsafe struct Queue<T> : IDisposable where T : unmanaged
             }
         }
 
-        NativeMemory.Free(_array);
+        NativeMemoryHelper.Free(_array);
         GC.RemoveMemoryPressure(length * Unsafe.SizeOf<T>());
         _array = destinationArray;
         _head = 0;
@@ -154,7 +152,7 @@ internal unsafe struct Queue<T> : IDisposable where T : unmanaged
 
     public void Dispose()
     {
-        NativeMemory.Free(_array);
+        NativeMemoryHelper.Free(_array);
         GC.RemoveMemoryPressure(length * Unsafe.SizeOf<T>());
     }
 }

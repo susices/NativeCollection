@@ -55,7 +55,7 @@ public unsafe class Stack<T> : IDisposable where T : unmanaged, IEquatable<T>
         if (_stack != null)
         {
             _stack->Dispose();
-            NativeMemory.Free(_stack);
+            NativeMemoryHelper.Free(_stack);
             GC.RemoveMemoryPressure(Unsafe.SizeOf<Internal.Stack<T>>());
         }
     }

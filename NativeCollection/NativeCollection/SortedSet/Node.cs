@@ -135,7 +135,8 @@ public unsafe partial class SortedSet<T>
             }
 
             pendingNodes->Dispose();
-            NativeMemory.Free(pendingNodes);
+            NativeMemoryHelper.Free(pendingNodes);
+            GC.RemoveMemoryPressure(Unsafe.SizeOf<Internal.Stack<NodeSourceTarget>>());
             return newRoot;
         }
 

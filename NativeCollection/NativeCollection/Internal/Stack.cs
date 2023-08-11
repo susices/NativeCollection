@@ -14,13 +14,13 @@ internal unsafe struct Stack<T> : IDisposable where T : unmanaged, IEquatable<T>
     {
         if (initialCapacity < 0) ThrowHelper.StackInitialCapacityException();
 
-        var stack = (Stack<T>*)NativeMemory.Alloc((uint)Unsafe.SizeOf<Stack<T>>());
+        var stack = (Stack<T>*)NativeMemoryHelper.Alloc((uint)Unsafe.SizeOf<Stack<T>>());
         GC.AddMemoryPressure(Unsafe.SizeOf<Stack<T>>());
 
         if (initialCapacity < _defaultCapacity)
             initialCapacity = _defaultCapacity; // Simplify doubling logic in Push.
 
-        stack->_array = (T*)NativeMemory.Alloc((uint)initialCapacity, (uint)Unsafe.SizeOf<T>());
+        stack->_array = (T*)NativeMemoryHelper.Alloc((uint)initialCapacity, (uint)Unsafe.SizeOf<T>());
         GC.AddMemoryPressure(initialCapacity * Unsafe.SizeOf<T>());
         stack->ArrayLength = initialCapacity;
         stack->Count = 0;
@@ -89,10 +89,9 @@ internal unsafe struct Stack<T> : IDisposable where T : unmanaged, IEquatable<T>
     {
         if (Count == ArrayLength)
         {
-            var newArray = (T*)NativeMemory.Alloc((uint)ArrayLength * 2, (uint)Unsafe.SizeOf<T>());
-            GC.AddMemoryPressure(ArrayLength * 2 * Unsafe.SizeOf<T>());
+            var newArray = (T*)NativeMemoryHelper.Alloc((uint)ArrayLength * 2, (uint)Unsafe.SizeOf<T>());
             Unsafe.CopyBlockUnaligned(newArray, _array, (uint)(Count * Unsafe.SizeOf<T>()));
-            NativeMemory.Free(_array);
+            NativeMemoryHelper.Free(_array);
             GC.RemoveMemoryPressure(ArrayLength * Unsafe.SizeOf<T>());
             _array = newArray;
             ArrayLength = ArrayLength * 2;
@@ -104,7 +103,7 @@ internal unsafe struct Stack<T> : IDisposable where T : unmanaged, IEquatable<T>
 
     public void Dispose()
     {
-        NativeMemory.Free(_array);
+        NativeMemoryHelper.Free(_array);
         GC.RemoveMemoryPressure(ArrayLength * Unsafe.SizeOf<T>());
     }
 }

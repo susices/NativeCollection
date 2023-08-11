@@ -57,7 +57,7 @@ public unsafe class Queue<T> : IDisposable where T : unmanaged
         if (_queue!=null)
         {
             _queue->Dispose();
-            NativeMemory.Free(_queue);
+            NativeMemoryHelper.Free(_queue);
             GC.RemoveMemoryPressure(Unsafe.SizeOf<Internal.Queue<T>>());
         }
     }

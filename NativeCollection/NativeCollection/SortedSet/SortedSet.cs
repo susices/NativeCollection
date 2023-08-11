@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Text;
 
 namespace NativeCollection;
 
@@ -93,10 +94,11 @@ public unsafe partial class SortedSet<T> : ICollection<T>, IDisposable where T :
         {
             if (enumerator.CurrentPointer != null)
             {
-                NativeMemory.Free(enumerator.CurrentPointer);
+                NativeMemoryHelper.Free(enumerator.CurrentPointer);
+                GC.RemoveMemoryPressure(Unsafe.SizeOf<Node>());
                 nodeCount++;
             }
-                
+            
         } while (enumerator.MoveNext());
 
         if (nodeCount!=0)
@@ -390,9 +392,13 @@ public unsafe partial class SortedSet<T> : ICollection<T>, IDisposable where T :
         {
             ReplaceNode(match, parentOfMatch!, parent!, grandParent!);
             --count;
+            NativeMemoryHelper.Free(match);
+            GC.RemoveMemoryPressure(Unsafe.SizeOf<Node>());
         }
 
         if (root != null) root->ColorBlack();
+        
+        
 
         return foundMatch;
     }
@@ -617,7 +623,7 @@ public unsafe partial class SortedSet<T> : ICollection<T>, IDisposable where T :
         {
             //Console.WriteLine("Enumerator Dispose");
             _stack->Dispose();
-            NativeMemory.Free(_stack);
+            NativeMemoryHelper.Free(_stack);
             GC.RemoveMemoryPressure(Unsafe.SizeOf<Stack<IntPtr>>());
         }
 
@@ -656,5 +662,17 @@ public unsafe partial class SortedSet<T> : ICollection<T>, IDisposable where T :
         {
             Reset();
         }
+
+        
+    }
+    
+    public override string ToString()
+    {
+        StringBuilder sb = new StringBuilder();
+        foreach (var value in this)
+        {
+            sb.Append($"{value} ");
+        }
+        return sb.ToString();
     }
 }
