@@ -22,8 +22,7 @@ public unsafe struct HashSet<T> : ICollection<T>, IDisposable where T : unmanage
 
     private const int StartOfFreeList = -3;
 
-    private HashSet<T>* self;
-    
+    private HashSet<T>* _self;
     private int* _buckets;
     private int _bucketLength;
     private Entry* _entries;
@@ -35,14 +34,14 @@ public unsafe struct HashSet<T> : ICollection<T>, IDisposable where T : unmanage
     private int _freeList;
     private int _freeCount;
     private int _version;
-    private IEqualityComparer<T> _comparer=>EqualityComparer<T>.Default;
+    private static IEqualityComparer<T> _comparer = EqualityComparer<T>.Default;
 
     public static HashSet<T>* Create()
     {
         HashSet<T>* hashSet = (HashSet<T>*)NativeMemoryHelper.Alloc((UIntPtr)Unsafe.SizeOf<HashSet<T>>());
         hashSet->_buckets = null;
         hashSet->_entries = null;
-        hashSet->self = hashSet;
+        hashSet->_self = hashSet;
         hashSet->Initialize(0);
         return hashSet;
     }
@@ -61,7 +60,7 @@ public unsafe struct HashSet<T> : ICollection<T>, IDisposable where T : unmanage
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Enumerator GetEnumerator() => new Enumerator(self);
+    public Enumerator GetEnumerator() => new Enumerator(_self);
 
     #region ICollection<T> methods
 
@@ -161,7 +160,11 @@ public unsafe struct HashSet<T> : ICollection<T>, IDisposable where T : unmanage
 
     public void Dispose()
     {
-        throw new NotImplementedException();
+        NativeMemoryHelper.Free(_buckets);
+        GC.RemoveMemoryPressure(Unsafe.SizeOf<int>()*_bucketLength);
+        
+        NativeMemoryHelper.Free(_entries);
+        GC.RemoveMemoryPressure(Unsafe.SizeOf<Entry>()*_entryLength);
     }
     
     #region Helper methods
@@ -189,10 +192,11 @@ public unsafe struct HashSet<T> : ICollection<T>, IDisposable where T : unmanage
         return size;
     }
     
-        /// <summary>Adds the specified element to the set if it's not already contained.</summary>
+    /// <summary>Adds the specified element to the set if it's not already contained.</summary>
     /// <param name="value">The element to add to the set.</param>
     /// <param name="location">The index into <see cref="_entries" /> of the element.</param>
     /// <returns>true if the element is added to the <see cref="HashSet{T}" /> object; false if the element is already present.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool AddIfNotPresent(T value, out int location)
     {
         //Console.WriteLine($"AddIfNotPresent:{value}");
@@ -354,6 +358,7 @@ public unsafe struct HashSet<T> : ICollection<T>, IDisposable where T : unmanage
         }
         
         /// <summary>Gets the index of the item in <see cref="_entries"/>, or -1 if it's not in the set.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int FindItemIndex(T item)
         {
             if (_buckets == null) return -1;
@@ -407,7 +412,7 @@ public unsafe struct HashSet<T> : ICollection<T>, IDisposable where T : unmanage
     public override string ToString()
     {
         StringBuilder sb = new StringBuilder();
-        foreach (var value in *self)
+        foreach (var value in *_self)
         {
             sb.Append($"{value} ");
         }

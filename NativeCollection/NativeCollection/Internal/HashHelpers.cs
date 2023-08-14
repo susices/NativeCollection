@@ -125,4 +125,5 @@ public static class HashHelpers
     /// <remarks>This should only be used on 64-bit.</remarks>
     public static ulong GetFastModMultiplier(uint divisor) =>
         ulong.MaxValue / divisor + 1;
+    
 }
