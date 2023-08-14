@@ -40,4 +40,28 @@ public static class ThrowHelper
     {
         throw new ArgumentOutOfRangeException("SmallCapacity");
     }
+    
+    [DoesNotReturn]
+    public static void ConcurrentOperationsNotSupported()
+    {
+        throw new InvalidOperationException("ConcurrentOperationsNotSupported");
+    }
+    
+    [DoesNotReturn]
+    public static void HashSetCapacityOutOfRange()
+    {
+        throw new ArgumentOutOfRangeException("HashSetCapacityOutOfRange");
+    }
+    
+    [DoesNotReturn]
+    public static void HashSetEnumFailedVersion()
+    {
+        throw new InvalidOperationException("EnumFailedVersion");
+    }
+    
+    [DoesNotReturn]
+    public static void HashSetEnumOpCantHappen()
+    {
+        throw new InvalidOperationException("EnumOpCantHappen");
+    }
 }

@@ -120,24 +120,28 @@ public unsafe struct List<T> : ICollection<T>, IDisposable where T : unmanaged, 
         return IndexOf(item) >= 0;
     }
 
+    public void FillDefaultValue()
+    {
+        for (int i = 0; i < _arrayLength; i++)
+        {
+            _items[i] = default;
+        }
+        Count = _arrayLength;
+    }
+
+    public void ResizeWithDefaultValue(int newSize)
+    {
+        var size = _arrayLength;
+        Capacity = newSize;
+        for (int i = size; i < _arrayLength; i++)
+        {
+            _items[i] = default;
+        }
+    }
+
     public int Count { get; private set; }
 
     public bool IsReadOnly => false;
-
-    public T this[int index]
-    {
-        get
-        {
-            if ((uint)index >= (uint)Count) ThrowHelper.IndexMustBeLessException();
-            return _items[index];
-        }
-
-        set
-        {
-            if ((uint)index >= (uint)Count) ThrowHelper.IndexMustBeLessException();
-            _items[index] = value;
-        }
-    }
 
     private void AddWithResize(in T item)
     {
@@ -164,9 +168,14 @@ public unsafe struct List<T> : ICollection<T>, IDisposable where T : unmanaged, 
         Capacity = newcapacity;
     }
 
-    public Span<T> AsSpan()
+    public Span<T> WrittenSpan()
     {
         return new Span<T>(_items, Count);
+    }
+
+    public Span<T> TotalSpan()
+    {
+        return new Span<T>(_items, _arrayLength);
     }
 
     public void Dispose()

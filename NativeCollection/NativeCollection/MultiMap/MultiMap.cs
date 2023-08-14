@@ -20,7 +20,7 @@ public unsafe class MultiMap<T, K> : IEnumerable<MultiMapPair<T, K>>, IDisposabl
             var node = _sortedSet->FindNode(list);
             if (node!=null)
             {
-                return node->Item.Value.AsSpan();
+                return node->Item.Value.WrittenSpan();
             }
             return Span<K>.Empty;
         }

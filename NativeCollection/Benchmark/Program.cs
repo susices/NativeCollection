@@ -12,7 +12,8 @@ public static class Program
         //TestSortedSet();
         //TestSortedSetAddRemove();
         //TestList();
-        TestMultiMap();
+        //TestMultiMap();
+        TestHashSet();
     }
 
     public static void TestStack()
@@ -171,6 +172,51 @@ public static class Program
             foreach (var value in input) nativeMultiMap.Remove(value);
             stopwatch.Stop();
             Console.WriteLine($"nativeMultiMap : {stopwatch.ElapsedMilliseconds}");
+        }
+        
+    }
+
+    public unsafe static void TestHashSet()
+    {
+        var input = new List<int>(10000000);
+        for (var i = 0; i < 10000000; i++)
+        {
+            input.Add(i);
+        }
+        NativeCollection.Internal.HashSet<int>* nativeHashSet =  NativeCollection.Internal.HashSet<int>.Create();
+
+        HashSet<int> managedHashSet = new HashSet<int>();
+       
+        
+        {
+            var stopwatch = Stopwatch.StartNew();
+            foreach (var value in input)
+            {
+                nativeHashSet->Add(value);
+            }
+            foreach (var value in input)
+            {
+                nativeHashSet->Remove(value);
+            }
+            stopwatch.Stop();
+            Console.WriteLine($"nativeHashSet : {stopwatch.ElapsedMilliseconds}");
+        }
+        
+        
+        {
+            var stopwatch = Stopwatch.StartNew();
+            foreach (var value in input)
+            {
+                managedHashSet.Add(value);
+            }
+            
+            foreach (var value in input)
+            {
+                managedHashSet.Remove(value);
+            }
+            
+            stopwatch.Stop();
+            Console.WriteLine($"managedHashSet : {stopwatch.ElapsedMilliseconds}");
         }
     }
 }
