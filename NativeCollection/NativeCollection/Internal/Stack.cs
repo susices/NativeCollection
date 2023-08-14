@@ -1,5 +1,4 @@
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 
 namespace NativeCollection.Internal;
 
@@ -30,7 +29,7 @@ internal unsafe struct Stack<T> : IDisposable where T : unmanaged, IEquatable<T>
 
     public int Count { get; private set; }
 
-    
+
     public void Clear()
     {
         ArrayLength = 0;

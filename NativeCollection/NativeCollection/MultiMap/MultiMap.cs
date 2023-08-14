@@ -1,91 +1,107 @@
 using System.Collections;
+using System.Runtime.CompilerServices;
 
 namespace NativeCollection;
 
-public unsafe class MultiMap<T,K> : IEnumerable<MultiMapPair<T, K>>, IEnumerable where T: unmanaged,IEquatable<T>,IComparable<T> where K:unmanaged,IEquatable<K>
+public unsafe class MultiMap<T, K> : IEnumerable<MultiMapPair<T, K>>, IDisposable
+    where T : unmanaged, IEquatable<T>, IComparable<T> where K : unmanaged, IEquatable<K>
 {
-    private SortedSet<MultiMapPair<T, K>> _sortedSet;
-    private Dictionary<T, MultiMapPair<T, K>> _multiMapPairDic;
-    
+    private readonly SortedSet<MultiMapPair<T, K>>* _sortedSet;
+
     public MultiMap()
     {
-        _sortedSet = new SortedSet<MultiMapPair<T, K>>();
-        _multiMapPairDic = new Dictionary<T, MultiMapPair<T, K>>();
+        _sortedSet = SortedSet<MultiMapPair<T, K>>.Create();
     }
 
-    public void Add(T key, K value)
-    {
-        
-        if (!_multiMapPairDic.TryGetValue(key, out MultiMapPair<T, K> list))
-        {
-            list = MultiMapPair<T, K>.Create(key);
-            _multiMapPairDic.Add(key,list);
-            _sortedSet.Add(list);
-        }
-        list._value->Add(value);
-        
-        Console.WriteLine($"multiMap Add key:{key} value:{value} list:{*list._value}");
-    }
-
-    public bool Remove(T key, K value)
-    {
-        if (!_multiMapPairDic.TryGetValue(key, out MultiMapPair<T, K> list))
-        {
-            return false;
-        }
-
-        if (!list.Value.Remove(value))
-        {
-            return false;
-        }
-
-        if (list.Value.Count==0)
-        {
-            Remove(key);
-        }
-
-        return true;
-    }
-
-    public bool Remove(T key)
-    {
-        if (!_multiMapPairDic.TryGetValue(key, out MultiMapPair<T, K> list))
-        {
-            return false;
-        }
-        
-        bool dicRemove = _multiMapPairDic.Remove(key);
-        bool sortedSetRemove =  _sortedSet.Remove(list);
-        list.Dispose();
-        return dicRemove && sortedSetRemove;
-    }
-
-    public Span<K> this[T key]
-    {
+    public Span<K> this[T key] {
         get
         {
-            if (_multiMapPairDic.TryGetValue(key, out var list))
+            var list = MultiMapPair<T, K>.Create(key);
+            var node = _sortedSet->FindNode(list);
+            if (node!=null)
             {
-                return list.Value.AsSpan();
+                return node->Item.Value.AsSpan();
             }
             return Span<K>.Empty;
         }
     }
 
-    IEnumerator<MultiMapPair<T, K>> IEnumerable<MultiMapPair<T, K>>.GetEnumerator()
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void Add(T key, K value)
     {
-        return _sortedSet.GetEnumerator();
+        var list = MultiMapPair<T, K>.Create(key);
+        var node = _sortedSet->FindNode(list);
+
+        if (node != null)
+            list = node->Item;
+        else
+            _sortedSet->Add(list);
+        
+        list.Value.Add(value);
+
     }
 
-    IEnumerator IEnumerable.GetEnumerator()
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool Remove(T key, K value)
     {
-        return _sortedSet.GetEnumerator();
+        var list = MultiMapPair<T, K>.Create(key);
+        var node = _sortedSet->FindNode(list);
+
+        if (node == null) return false;
+        list = node->Item;
+        if (!list.Value.Remove(value)) return false;
+
+        if (list.Value.Count == 0) Remove(key);
+
+        return true;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool Remove(T key)
+    {
+        var list = MultiMapPair<T, K>.Create(key);
+        var node = _sortedSet->FindNode(list);
+
+        if (node == null) return false;
+        list = node->Item;
+        var sortedSetRemove = _sortedSet->Remove(list);
+        list.Dispose();
+        return sortedSetRemove;
     }
     
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    IEnumerator<MultiMapPair<T, K>> IEnumerable<MultiMapPair<T, K>>.GetEnumerator()
+    {
+        return _sortedSet->GetEnumerator();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return _sortedSet->GetEnumerator();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public SortedSet<MultiMapPair<T, K>>.Enumerator GetEnumerator()
     {
-        Console.WriteLine("GetEnumerator");
         return new SortedSet<MultiMapPair<T, K>>.Enumerator(_sortedSet);
     }
     
+    public void Dispose()
+    {
+        if (_sortedSet != null)
+        {
+            _sortedSet->Dispose();
+        }
+    }
+    
+    ~MultiMap()
+    {
+        Dispose();
+        if (_sortedSet != null)
+        {
+            NativeMemoryHelper.Free(_sortedSet);
+            GC.RemoveMemoryPressure(Unsafe.SizeOf<SortedSet<MultiMapPair<T, K>>>());
+        }
+    }
 }

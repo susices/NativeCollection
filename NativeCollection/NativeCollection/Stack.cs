@@ -1,18 +1,28 @@
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 
 namespace NativeCollection;
 
 public unsafe class Stack<T> : IDisposable where T : unmanaged, IEquatable<T>
 {
     private const int _defaultCapacity = 10;
-    private Internal.Stack<T>* _stack;
-    public  Stack(int initialCapacity = _defaultCapacity)
+    private readonly Internal.Stack<T>* _stack;
+
+    public Stack(int initialCapacity = _defaultCapacity)
     {
         _stack = Internal.Stack<T>.Create(initialCapacity);
     }
 
     public int Count => _stack->Count;
+
+    public void Dispose()
+    {
+        if (_stack != null)
+        {
+            _stack->Dispose();
+            NativeMemoryHelper.Free(_stack);
+            GC.RemoveMemoryPressure(Unsafe.SizeOf<Internal.Stack<T>>());
+        }
+    }
 
     public void Clear()
     {
@@ -24,7 +34,7 @@ public unsafe class Stack<T> : IDisposable where T : unmanaged, IEquatable<T>
     {
         return _stack->Contains(obj);
     }
-    
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public T Peak()
     {
@@ -40,7 +50,7 @@ public unsafe class Stack<T> : IDisposable where T : unmanaged, IEquatable<T>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool TryPop(out T result)
     {
-        bool returnValue = _stack->TryPop(out result);
+        var returnValue = _stack->TryPop(out result);
         return returnValue;
     }
 
@@ -48,16 +58,6 @@ public unsafe class Stack<T> : IDisposable where T : unmanaged, IEquatable<T>
     public void Push(in T obj)
     {
         _stack->Push(obj);
-    }
-
-    public void Dispose()
-    {
-        if (_stack != null)
-        {
-            _stack->Dispose();
-            NativeMemoryHelper.Free(_stack);
-            GC.RemoveMemoryPressure(Unsafe.SizeOf<Internal.Stack<T>>());
-        }
     }
 
     ~Stack()

@@ -9,7 +9,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\NativeCollection\NativeCollection.csproj" />
+        <ProjectReference Include="..\NativeCollection\NativeCollection.csproj"/>
     </ItemGroup>
 
 </Project>

@@ -15,20 +15,20 @@ public static unsafe class NativeMemoryHelper
         return Marshal.AllocHGlobal((int)byteCount).ToPointer();
 #endif
     }
-    
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void* Alloc(UIntPtr elementCount, UIntPtr elementSize)
     {
-        GC.AddMemoryPressure((long)(elementCount*elementSize));
+        GC.AddMemoryPressure((long)(elementCount * elementSize));
 #if NET6_0_OR_GREATER
-        return NativeMemory.Alloc(elementCount,elementSize);
+        return NativeMemory.Alloc(elementCount, elementSize);
 #else
         return Marshal.AllocHGlobal((int)(elementCount*elementSize)).ToPointer();
 #endif
     }
-    
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Free<T>(T* ptr) where T:unmanaged
+    public static void Free<T>(T* ptr) where T : unmanaged
     {
 #if NET6_0_OR_GREATER
         NativeMemory.Free(ptr);
@@ -36,6 +36,4 @@ public static unsafe class NativeMemoryHelper
         Marshal.FreeHGlobal(new IntPtr(ptr));
 #endif
     }
-    
-    
 }

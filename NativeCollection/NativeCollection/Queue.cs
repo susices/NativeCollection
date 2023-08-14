@@ -1,11 +1,10 @@
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 
 namespace NativeCollection;
 
 public unsafe class Queue<T> : IDisposable where T : unmanaged
 {
-    private Internal.Queue<T>* _queue;
+    private readonly Internal.Queue<T>* _queue;
 
     public Queue(int capacity = 10)
     {
@@ -13,6 +12,16 @@ public unsafe class Queue<T> : IDisposable where T : unmanaged
     }
 
     public int Count => _queue->Count;
+
+    public void Dispose()
+    {
+        if (_queue != null)
+        {
+            _queue->Dispose();
+            NativeMemoryHelper.Free(_queue);
+            GC.RemoveMemoryPressure(Unsafe.SizeOf<Internal.Queue<T>>());
+        }
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Clear()
@@ -31,7 +40,7 @@ public unsafe class Queue<T> : IDisposable where T : unmanaged
     {
         return _queue->Dequeue();
     }
-    
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool TryDequeue(out T result)
     {
@@ -50,16 +59,6 @@ public unsafe class Queue<T> : IDisposable where T : unmanaged
     {
         var value = _queue->TryPeek(out result);
         return value;
-    }
-    
-    public void Dispose()
-    {
-        if (_queue!=null)
-        {
-            _queue->Dispose();
-            NativeMemoryHelper.Free(_queue);
-            GC.RemoveMemoryPressure(Unsafe.SizeOf<Internal.Queue<T>>());
-        }
     }
 
     ~Queue()

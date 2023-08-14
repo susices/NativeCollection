@@ -18,7 +18,7 @@ internal enum TreeRotation : byte
     RightLeft
 }
 
-public unsafe partial class SortedSet<T>
+public unsafe partial struct SortedSet<T>
 {
     internal struct Node : IEquatable<Node>
     {

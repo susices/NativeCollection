@@ -2,33 +2,29 @@ using System.Collections;
 using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using System.Text;
 
 namespace NativeCollection;
 
-public unsafe partial class SortedSet<T> : ICollection<T>, IDisposable where T : unmanaged, IEquatable<T>
+public unsafe partial struct SortedSet<T> : ICollection<T>, IDisposable where T : unmanaged, IEquatable<T>
 {
-    private readonly IComparer<T> comparer = default!;
+    private SortedSet<T>* self;
+    private readonly IComparer<T> comparer => Comparer<T>.Default;
     private int count;
     private Node* root;
     private int version;
 
-    public SortedSet()
+    public static SortedSet<T>* Create()
     {
-        root = null;
-        comparer = Comparer<T>.Default;
-    }
-
-    public SortedSet(IComparer<T>? comparer)
-    {
-        root = null;
-        this.comparer = comparer ?? Comparer<T>.Default;
+        var sortedSet = (SortedSet<T>*)NativeMemoryHelper.Alloc((UIntPtr)Unsafe.SizeOf<SortedSet<T>>());
+        sortedSet->self = sortedSet;
+        sortedSet->root = null;
+        return sortedSet;
     }
 
     public T? Min => MinInternal;
 
-    internal virtual T? MinInternal
+    internal T? MinInternal
     {
         get
         {
@@ -43,7 +39,7 @@ public unsafe partial class SortedSet<T> : ICollection<T>, IDisposable where T :
 
     public T? Max => MaxInternal;
 
-    internal virtual T? MaxInternal
+    internal T? MaxInternal
     {
         get
         {
@@ -56,7 +52,7 @@ public unsafe partial class SortedSet<T> : ICollection<T>, IDisposable where T :
         }
     }
 
-    
+
     public int Count
     {
         get
@@ -86,10 +82,10 @@ public unsafe partial class SortedSet<T> : ICollection<T>, IDisposable where T :
         Add(item);
     }
 
-    public virtual void Clear()
+    public void Clear()
     {
         using var enumerator = GetEnumerator();
-        int nodeCount = 0;
+        var nodeCount = 0;
         do
         {
             if (enumerator.CurrentPointer != null)
@@ -98,13 +94,9 @@ public unsafe partial class SortedSet<T> : ICollection<T>, IDisposable where T :
                 GC.RemoveMemoryPressure(Unsafe.SizeOf<Node>());
                 nodeCount++;
             }
-            
         } while (enumerator.MoveNext());
 
-        if (nodeCount!=0)
-        {
-            GC.RemoveMemoryPressure(nodeCount * Unsafe.SizeOf<Node>());
-        }
+        if (nodeCount != 0) GC.RemoveMemoryPressure(nodeCount * Unsafe.SizeOf<Node>());
 
         root = null;
         count = 0;
@@ -112,7 +104,7 @@ public unsafe partial class SortedSet<T> : ICollection<T>, IDisposable where T :
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public virtual bool Contains(T item)
+    public bool Contains(T item)
     {
         return FindNode(item) != null;
     }
@@ -168,7 +160,7 @@ public unsafe partial class SortedSet<T> : ICollection<T>, IDisposable where T :
     ///     If the delegate returns <c>false</c>, the walk is stopped.
     /// </param>
     /// <returns><c>true</c> if the entire tree has been walked; otherwise, <c>false</c>.</returns>
-    internal virtual bool InOrderTreeWalk(TreeWalkPredicate action)
+    internal bool InOrderTreeWalk(TreeWalkPredicate action)
     {
         if (root == null) return true;
 
@@ -203,18 +195,18 @@ public unsafe partial class SortedSet<T> : ICollection<T>, IDisposable where T :
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal virtual void VersionCheck(bool updateCount = false)
+    internal void VersionCheck(bool updateCount = false)
     {
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal virtual int TotalCount()
+    internal int TotalCount()
     {
         return Count;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal virtual bool IsWithinRange(T item)
+    internal bool IsWithinRange(T item)
     {
         return true;
     }
@@ -226,7 +218,7 @@ public unsafe partial class SortedSet<T> : ICollection<T>, IDisposable where T :
         return AddIfNotPresent(item);
     }
 
-    internal virtual bool AddIfNotPresent(T item)
+    internal bool AddIfNotPresent(T item)
     {
         if (root == null)
         {
@@ -292,7 +284,7 @@ public unsafe partial class SortedSet<T> : ICollection<T>, IDisposable where T :
         return true;
     }
 
-    internal virtual bool DoRemove(T item)
+    internal bool DoRemove(T item)
     {
         if (root == null) return false;
 
@@ -397,8 +389,7 @@ public unsafe partial class SortedSet<T> : ICollection<T>, IDisposable where T :
         }
 
         if (root != null) root->ColorBlack();
-        
-        
+
 
         return foundMatch;
     }
@@ -490,7 +481,7 @@ public unsafe partial class SortedSet<T> : ICollection<T>, IDisposable where T :
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal virtual Node* FindNode(T item)
+    internal Node* FindNode(T item)
     {
         var current = root;
         while (current != null)
@@ -518,38 +509,33 @@ public unsafe partial class SortedSet<T> : ICollection<T>, IDisposable where T :
 
     public Enumerator GetEnumerator()
     {
-        return new Enumerator(this);
-    }
-
-    ~SortedSet()
-    {
-        Dispose();
+        return new Enumerator(self);
     }
 
     internal delegate bool TreeWalkPredicate(Node* node);
 
     public struct Enumerator : IEnumerator<T>
     {
-        private readonly SortedSet<T> _tree;
+        private readonly SortedSet<T>* _tree;
         private readonly int _version;
 
         private readonly Internal.Stack<IntPtr>* _stack;
         private readonly bool _reverse;
 
-        internal Enumerator(SortedSet<T> set)
+        internal Enumerator(SortedSet<T>* set)
             : this(set, false)
         {
         }
 
-        internal Enumerator(SortedSet<T> set, bool reverse)
+        internal Enumerator(SortedSet<T>* set, bool reverse)
         {
             _tree = set;
-            set.VersionCheck();
-            _version = set.version;
+            set->VersionCheck();
+            _version = set->version;
 
             // 2 log(n + 1) is the maximum height.
 
-            _stack = Internal.Stack<IntPtr>.Create(2 * Log2(set.TotalCount() + 1));
+            _stack = Internal.Stack<IntPtr>.Create(2 * Log2(set->TotalCount() + 1));
             CurrentPointer = null;
             _reverse = reverse;
             Initialize();
@@ -558,18 +544,18 @@ public unsafe partial class SortedSet<T> : ICollection<T>, IDisposable where T :
         private void Initialize()
         {
             CurrentPointer = null;
-            var node = _tree.root;
+            var node = _tree->root;
             Node* next, other;
             while (node != null)
             {
                 next = _reverse ? node->Right : node->Left;
                 other = _reverse ? node->Left : node->Right;
-                if (_tree.IsWithinRange(node->Item))
+                if (_tree->IsWithinRange(node->Item))
                 {
                     _stack->Push((IntPtr)node);
                     node = next;
                 }
-                else if (next == null || !_tree.IsWithinRange(next->Item))
+                else if (next == null || !_tree->IsWithinRange(next->Item))
                 {
                     node = other;
                 }
@@ -583,9 +569,9 @@ public unsafe partial class SortedSet<T> : ICollection<T>, IDisposable where T :
         public bool MoveNext()
         {
             // Make sure that the underlying subset has not been changed since
-            _tree.VersionCheck();
+            _tree->VersionCheck();
 
-            if (_version != _tree.version) throw new InvalidOperationException("_version != _tree.version");
+            if (_version != _tree->version) throw new InvalidOperationException("_version != _tree.version");
 
             if (_stack->Count == 0)
             {
@@ -600,12 +586,12 @@ public unsafe partial class SortedSet<T> : ICollection<T>, IDisposable where T :
             {
                 next = _reverse ? node->Right : node->Left;
                 other = _reverse ? node->Left : node->Right;
-                if (_tree.IsWithinRange(node->Item))
+                if (_tree->IsWithinRange(node->Item))
                 {
                     _stack->Push((IntPtr)node);
                     node = next;
                 }
-                else if (other == null || !_tree.IsWithinRange(other->Item))
+                else if (other == null || !_tree->IsWithinRange(other->Item))
                 {
                     node = next;
                 }
@@ -642,7 +628,7 @@ public unsafe partial class SortedSet<T> : ICollection<T>, IDisposable where T :
 
         internal void Reset()
         {
-            if (_version != _tree.version) throw new InvalidOperationException("_version != _tree.version");
+            if (_version != _tree->version) throw new InvalidOperationException("_version != _tree.version");
 
             _stack->Clear();
             Initialize();
@@ -662,17 +648,13 @@ public unsafe partial class SortedSet<T> : ICollection<T>, IDisposable where T :
         {
             Reset();
         }
-
-        
     }
-    
+
     public override string ToString()
     {
-        StringBuilder sb = new StringBuilder();
-        foreach (var value in this)
-        {
-            sb.Append($"{value} ");
-        }
+        var sb = new StringBuilder();
+        foreach (var value in this) sb.Append($"{value} ");
+
         return sb.ToString();
     }
 }
