@@ -14,7 +14,6 @@ public unsafe class MultiMap<T, K> : IEnumerable<MultiMapPair<T, K>>, INativeCol
         _multiMap = UnsafeType.MultiMap<T, K>.Create();
         IsDisposed = false;
     }
-
     
     public Span<K> this[T key] => (*_multiMap)[key];
 
@@ -36,7 +35,14 @@ public unsafe class MultiMap<T, K> : IEnumerable<MultiMapPair<T, K>>, INativeCol
         return _multiMap->Remove(key);
     }
     
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void Clear()
+    {
+        _multiMap->Clear();
+    }
 
+    public int Count => _multiMap->Count;
+    
     IEnumerator<MultiMapPair<T, K>> IEnumerable<MultiMapPair<T, K>>. GetEnumerator()
     {
         return GetEnumerator();

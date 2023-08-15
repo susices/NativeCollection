@@ -1,7 +1,7 @@
 using FluentAssertions;
 using Xunit;
 
-namespace NativeCollection.Test.SortedSet;
+namespace NativeCollection.Test;
 
 public class QueueTest
 {
@@ -78,6 +78,25 @@ public class QueueTest
             nativeQueue.Clear();
             nativeQueue.Count.Should().Be(0);
         }
-        
+    }
+    
+    [Fact]
+    public void NativeCollectionClass()
+    {
+        Queue<int> queue = new Queue<int>();
+        queue.IsDisposed.Should().Be(false);
+        for (int i = 0; i < 100; i++)
+        {
+            queue.Enqueue(Random.Shared.Next());
+        }
+        queue.Dispose();
+        queue.IsDisposed.Should().Be(true);
+        queue.ReInit();
+        queue.IsDisposed.Should().Be(false);
+        queue.Count.Should().Be(0);
+        for (int i = 0; i < 100; i++)
+        {
+            queue.Enqueue(Random.Shared.Next());
+        }
     }
 }

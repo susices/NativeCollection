@@ -70,6 +70,14 @@ public unsafe struct MultiMap<T, K> : IEnumerable<MultiMapPair<T, K>>, IDisposab
         list.Dispose();
         return sortedSetRemove;
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void Clear()
+    {
+        _sortedSet->Clear();
+    }
+
+    public int Count => _sortedSet->Count;
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     IEnumerator<MultiMapPair<T, K>> IEnumerable<MultiMapPair<T, K>>.GetEnumerator()

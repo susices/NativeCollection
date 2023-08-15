@@ -1,7 +1,7 @@
 using FluentAssertions;
 using Xunit;
 
-namespace NativeCollection.Test.SortedSet;
+namespace NativeCollection.Test;
 
 public class StackTest
 {
@@ -104,5 +104,25 @@ public class StackTest
             nativeStack.Clear();
         }
         
+    }
+    
+    [Fact]
+    public void NativeCollectionClass()
+    {
+        Stack<int> stack = new Stack<int>();
+        stack.IsDisposed.Should().Be(false);
+        for (int i = 0; i < 100; i++)
+        {
+            stack.Push(Random.Shared.Next());
+        }
+        stack.Dispose();
+        stack.IsDisposed.Should().Be(true);
+        stack.ReInit();
+        stack.IsDisposed.Should().Be(false);
+        stack.Count.Should().Be(0);
+        for (int i = 0; i < 100; i++)
+        {
+            stack.Push(Random.Shared.Next());
+        }
     }
 }

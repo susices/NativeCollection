@@ -31,6 +31,18 @@ public unsafe struct List<T> : ICollection<T>, IDisposable where T : unmanaged, 
         return list;
     }
 
+    public T this[int index]
+    {
+        get
+        {
+            if (index>=Count)
+            {
+                ThrowHelper.IndexMustBeLessException();
+            }
+            return *(_items + index);
+        }
+    }
+
     public int Capacity
     {
         get => _arrayLength;
@@ -81,7 +93,7 @@ public unsafe struct List<T> : ICollection<T>, IDisposable where T : unmanaged, 
     public bool Remove(T item)
     {
         var index = IndexOf(item);
-        Console.WriteLine($"index: {index}");
+        //Console.WriteLine($"index: {index}");
         if (index >= 0)
         {
             RemoveAt(index);

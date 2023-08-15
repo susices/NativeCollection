@@ -1,7 +1,7 @@
 using FluentAssertions;
 using Xunit;
 
-namespace NativeCollection.Test.SortedSet;
+namespace NativeCollection.Test;
 
 public unsafe class SortedSetTest
 {
@@ -120,6 +120,26 @@ public unsafe class SortedSetTest
             hasException = true;
         }
         hasException.Should().Be(true);
+    }
+    
+    [Fact]
+    public void NativeCollectionClass()
+    {
+        SortedSet<int> sortedSet = new SortedSet<int>();
+        sortedSet.IsDisposed.Should().Be(false);
+        for (int i = 0; i < 100; i++)
+        {
+            sortedSet.Add(Random.Shared.Next());
+        }
+        sortedSet.Dispose();
+        sortedSet.IsDisposed.Should().Be(true);
+        sortedSet.ReInit();
+        sortedSet.IsDisposed.Should().Be(false);
+        sortedSet.Count.Should().Be(0);
+        for (int i = 0; i < 100; i++)
+        {
+            sortedSet.Add(Random.Shared.Next());
+        }
     }
     
 }
