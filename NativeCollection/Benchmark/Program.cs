@@ -2,6 +2,7 @@
 
 using System.Diagnostics;
 using NativeCollection;
+using NativeCollection.UnsafeType;
 
 public static class Program
 {
@@ -18,7 +19,7 @@ public static class Program
 
     public static void TestStack()
     {
-        var input = new List<int>(10000000);
+        var input = new System.Collections.Generic.List<int>(10000000);
         for (var i = 0; i < 10000000; i++) input.Add(Random.Shared.Next());
 
         var nativeStack = new NativeCollection.Stack<int>();
@@ -45,7 +46,7 @@ public static class Program
 
     public static void TestQueue()
     {
-        var input = new List<int>(10000000);
+        var input = new System.Collections.Generic.List<int>(10000000);
         for (var i = 0; i < 10000000; i++) input.Add(Random.Shared.Next());
 
         var nativeQueue = new NativeCollection.Queue<int>();
@@ -72,7 +73,7 @@ public static class Program
 
     public static void TestSortedSet()
     {
-        var input = new List<int>(100000);
+        var input = new System.Collections.Generic.List<int>(100000);
         for (var i = 0; i < 100000; i++) input.Add(Random.Shared.Next());
 
         var nativeSortedSet = new NativeCollection.SortedSet<int>();
@@ -105,17 +106,17 @@ public static class Program
 
     public unsafe static void TestSortedSetAddRemove()
     {
-        var nativeSortedSet = NativeCollection.SortedSet<int>.Create();
-        nativeSortedSet->Add(5);
-        nativeSortedSet->Add(2);
-        nativeSortedSet->Add(3);
-        nativeSortedSet->Add(1);
-        nativeSortedSet->Add(4);
-        Console.WriteLine(nativeSortedSet->ToString());
+        var nativeSortedSet = new NativeCollection.SortedSet<int>();
+        nativeSortedSet.Add(5);
+        nativeSortedSet.Add(2);
+        nativeSortedSet.Add(3);
+        nativeSortedSet.Add(1);
+        nativeSortedSet.Add(4);
+        Console.WriteLine(nativeSortedSet.ToString());
 
-        nativeSortedSet->Remove(2);
-        nativeSortedSet->Remove(4);
-        Console.WriteLine(nativeSortedSet->ToString());
+        nativeSortedSet.Remove(2);
+        nativeSortedSet.Remove(4);
+        Console.WriteLine(nativeSortedSet.ToString());
     }
 
     public static unsafe void TestList()
@@ -126,11 +127,11 @@ public static class Program
 
     public static void TestMultiMap()
     {
-        var input = new List<int>(100000);
+        var input = new System.Collections.Generic.List<int>(100000);
         for (var i = 0; i < 100000; i++) input.Add(Random.Shared.Next());
 
-        var managedMultiMap = new SortedDictionary<int, List<int>>();
-        var nativeMultiMap = new MultiMap<int, int>();
+        var managedMultiMap = new SortedDictionary<int, System.Collections.Generic.List<int>>();
+        var nativeMultiMap = new NativeCollection.MultiMap<int, int>();
 
         {
             var stopwatch = Stopwatch.StartNew();
@@ -140,7 +141,7 @@ public static class Program
                 {
                     if (!managedMultiMap.TryGetValue(value, out var list))
                     {
-                        list = new List<int>();
+                        list = new System.Collections.Generic.List<int>();
                         managedMultiMap.Add(value, list);
                     }
 
@@ -171,14 +172,15 @@ public static class Program
 
     public unsafe static void TestHashSet()
     {
-        var input = new List<int>(10000000);
+        var input = new System.Collections.Generic.List<int>(10000000);
         for (var i = 0; i < 10000000; i++)
         {
             input.Add(i);
         }
-        NativeCollection.Internal.HashSet<int>* nativeHashSet =  NativeCollection.Internal.HashSet<int>.Create();
 
-        HashSet<int> managedHashSet = new HashSet<int>();
+        NativeCollection.UnsafeType.HashSet<int>* nativeHashSet = NativeCollection.UnsafeType.HashSet<int>.Create();
+
+        System.Collections.Generic.HashSet<int> managedHashSet = new System.Collections.Generic.HashSet<int>();
        
         
         {

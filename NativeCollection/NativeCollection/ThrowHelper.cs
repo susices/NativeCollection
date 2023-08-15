@@ -2,7 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace NativeCollection;
 
-public static class ThrowHelper
+internal static class ThrowHelper
 {
     [DoesNotReturn]
     public static void StackInitialCapacityException()

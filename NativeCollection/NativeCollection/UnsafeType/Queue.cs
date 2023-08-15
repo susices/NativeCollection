@@ -1,8 +1,8 @@
 using System.Runtime.CompilerServices;
 
-namespace NativeCollection.Internal;
+namespace NativeCollection.UnsafeType;
 
-internal unsafe struct Queue<T> : IDisposable where T : unmanaged
+public unsafe struct Queue<T> : IDisposable where T : unmanaged
 {
     private T* _array;
     private int length;
@@ -151,7 +151,10 @@ internal unsafe struct Queue<T> : IDisposable where T : unmanaged
 
     public void Dispose()
     {
-        NativeMemoryHelper.Free(_array);
-        GC.RemoveMemoryPressure(length * Unsafe.SizeOf<T>());
+        if (_array!=null)
+        {
+            NativeMemoryHelper.Free(_array);
+            GC.RemoveMemoryPressure(length * Unsafe.SizeOf<T>());
+        }
     }
 }

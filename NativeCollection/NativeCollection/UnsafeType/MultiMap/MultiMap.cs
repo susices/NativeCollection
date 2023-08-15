@@ -1,16 +1,18 @@
 using System.Collections;
 using System.Runtime.CompilerServices;
 
-namespace NativeCollection;
+namespace NativeCollection.UnsafeType;
 
-public unsafe class MultiMap<T, K> : IEnumerable<MultiMapPair<T, K>>, IDisposable
+public unsafe struct MultiMap<T, K> : IEnumerable<MultiMapPair<T, K>>, IDisposable
     where T : unmanaged, IEquatable<T>, IComparable<T> where K : unmanaged, IEquatable<K>
 {
-    private readonly SortedSet<MultiMapPair<T, K>>* _sortedSet;
+    private UnsafeType.SortedSet<MultiMapPair<T, K>>* _sortedSet;
 
-    public MultiMap()
+    public static MultiMap<T, K>* Create()
     {
-        _sortedSet = SortedSet<MultiMapPair<T, K>>.Create();
+        MultiMap<T, K>* multiMap = (MultiMap<T, K>*)NativeMemoryHelper.Alloc((uint)Unsafe.SizeOf<MultiMap<T, K>>());
+        multiMap->_sortedSet = UnsafeType.SortedSet<MultiMapPair<T, K>>.Create();
+        return multiMap;
     }
 
     public Span<K> this[T key] {
@@ -82,9 +84,9 @@ public unsafe class MultiMap<T, K> : IEnumerable<MultiMapPair<T, K>>, IDisposabl
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public SortedSet<MultiMapPair<T, K>>.Enumerator GetEnumerator()
+    public UnsafeType.SortedSet<MultiMapPair<T, K>>.Enumerator GetEnumerator()
     {
-        return new SortedSet<MultiMapPair<T, K>>.Enumerator(_sortedSet);
+        return new UnsafeType.SortedSet<MultiMapPair<T, K>>.Enumerator(_sortedSet);
     }
     
     public void Dispose()
@@ -95,13 +97,5 @@ public unsafe class MultiMap<T, K> : IEnumerable<MultiMapPair<T, K>>, IDisposabl
         }
     }
     
-    ~MultiMap()
-    {
-        Dispose();
-        if (_sortedSet != null)
-        {
-            NativeMemoryHelper.Free(_sortedSet);
-            GC.RemoveMemoryPressure(Unsafe.SizeOf<SortedSet<MultiMapPair<T, K>>>());
-        }
-    }
+   
 }

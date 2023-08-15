@@ -2,7 +2,7 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-namespace NativeCollection;
+namespace NativeCollection.UnsafeType;
 
 internal enum NodeColor : byte
 {
@@ -118,7 +118,7 @@ public unsafe partial struct SortedSet<T>
 #endif
             var newRoot = ShallowClone();
 
-            var pendingNodes = Internal.Stack<NodeSourceTarget>.Create(2 * Log2(count) + 2);
+            var pendingNodes = UnsafeType.Stack<NodeSourceTarget>.Create(2 * Log2(count) + 2);
             pendingNodes->Push(new NodeSourceTarget(Self, newRoot));
 
             while (pendingNodes->TryPop(out var next))
@@ -144,7 +144,7 @@ public unsafe partial struct SortedSet<T>
 
             pendingNodes->Dispose();
             NativeMemoryHelper.Free(pendingNodes);
-            GC.RemoveMemoryPressure(Unsafe.SizeOf<Internal.Stack<NodeSourceTarget>>());
+            GC.RemoveMemoryPressure(Unsafe.SizeOf<UnsafeType.Stack<NodeSourceTarget>>());
             return newRoot;
         }
 
@@ -312,7 +312,7 @@ public unsafe partial struct SortedSet<T>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool Equals(Node other)
         {
-            return Item.Equals(other.Item) && Self == other.Self && Color == other.Color && Left == other.Left &&
+            return ((Object)Item).Equals(other.Item) && Self == other.Self && Color == other.Color && Left == other.Left &&
                    Right == other.Right;
         }
 

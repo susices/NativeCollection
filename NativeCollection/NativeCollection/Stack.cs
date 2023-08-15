@@ -2,25 +2,31 @@ using System.Runtime.CompilerServices;
 
 namespace NativeCollection;
 
-public unsafe class Stack<T> : IDisposable where T : unmanaged, IEquatable<T>
+public unsafe class Stack<T> : INativeCollectionClass where T : unmanaged, IEquatable<T>
 {
     private const int _defaultCapacity = 10;
-    private readonly Internal.Stack<T>* _stack;
+    private UnsafeType.Stack<T>* _stack;
 
     public Stack(int initialCapacity = _defaultCapacity)
     {
-        _stack = Internal.Stack<T>.Create(initialCapacity);
+        _stack = UnsafeType.Stack<T>.Create(initialCapacity);
+        IsDisposed = false;
     }
 
     public int Count => _stack->Count;
 
     public void Dispose()
     {
+        if (IsDisposed)
+        {
+            return;
+        }
         if (_stack != null)
         {
             _stack->Dispose();
             NativeMemoryHelper.Free(_stack);
-            GC.RemoveMemoryPressure(Unsafe.SizeOf<Internal.Stack<T>>());
+            GC.RemoveMemoryPressure(Unsafe.SizeOf<UnsafeType.Stack<T>>());
+            IsDisposed = true;
         }
     }
 
@@ -64,4 +70,15 @@ public unsafe class Stack<T> : IDisposable where T : unmanaged, IEquatable<T>
     {
         Dispose();
     }
+
+    public void ReInit()
+    {
+        if (IsDisposed)
+        {
+            _stack = UnsafeType.Stack<T>.Create(_defaultCapacity);
+            IsDisposed = false;
+        }
+    }
+
+    public bool IsDisposed { get; private set; }
 }

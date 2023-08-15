@@ -1,4 +1,4 @@
-namespace NativeCollection.Internal;
+namespace NativeCollection.UnsafeType;
 
 public static class HashHelpers
 {

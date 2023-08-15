@@ -1,10 +1,9 @@
 using System.Collections;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using System.Text;
 
-namespace NativeCollection.Internal;
+namespace NativeCollection.UnsafeType;
 
 public unsafe struct HashSet<T> : ICollection<T>, IDisposable where T : unmanaged, IEquatable<T>
 {
@@ -34,14 +33,15 @@ public unsafe struct HashSet<T> : ICollection<T>, IDisposable where T : unmanage
     private int _freeList;
     private int _freeCount;
     private int _version;
+    private static IEqualityComparer<T> _comparer = EqualityComparer<T>.Default;
 
-    public static HashSet<T>* Create()
+    public static HashSet<T>* Create(int capacity = 0)
     {
         HashSet<T>* hashSet = (HashSet<T>*)NativeMemoryHelper.Alloc((UIntPtr)Unsafe.SizeOf<HashSet<T>>());
         hashSet->_buckets = null;
         hashSet->_entries = null;
         hashSet->_self = hashSet;
-        hashSet->Initialize(0);
+        hashSet->Initialize(capacity);
         return hashSet;
     }
 
@@ -221,7 +221,7 @@ public unsafe struct HashSet<T> : ICollection<T>, IDisposable where T : unmanage
             // Console.WriteLine($"i:{i}");
             ref Entry entry = ref _entries[i];
             // Console.WriteLine($"entry.HashCode:{entry.HashCode} hashCode:{hashCode} Equals:{comparer.Equals(entry.Value, value)}");
-            if (entry.HashCode == hashCode && value.Equals(entry.Value))
+            if (entry.HashCode == hashCode && value.Equals(value))
             {
                 location = i;
                 return false;

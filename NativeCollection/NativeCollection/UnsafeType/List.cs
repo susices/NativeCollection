@@ -3,9 +3,9 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Text;
 
-namespace NativeCollection.Internal;
+namespace NativeCollection.UnsafeType;
 
-internal unsafe struct List<T> : ICollection<T>, IDisposable where T : unmanaged, IEquatable<T>
+public unsafe struct List<T> : ICollection<T>, IDisposable where T : unmanaged, IEquatable<T>
 {
     private List<T>* self;
 
@@ -20,13 +20,11 @@ internal unsafe struct List<T> : ICollection<T>, IDisposable where T : unmanaged
         if (initialCapacity < 0) ThrowHelper.ListInitialCapacityException();
 
         var list = (List<T>*)NativeMemoryHelper.Alloc((uint)Unsafe.SizeOf<List<T>>());
-        GC.AddMemoryPressure(Unsafe.SizeOf<List<T>>());
 
         if (initialCapacity < _defaultCapacity)
             initialCapacity = _defaultCapacity; // Simplify doubling logic in Push.
 
         list->_items = (T*)NativeMemoryHelper.Alloc((uint)initialCapacity, (uint)Unsafe.SizeOf<T>());
-        GC.AddMemoryPressure(initialCapacity * Unsafe.SizeOf<T>());
         list->_arrayLength = initialCapacity;
         list->Count = 0;
         list->self = list;

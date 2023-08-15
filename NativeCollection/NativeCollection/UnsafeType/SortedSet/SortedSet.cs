@@ -4,7 +4,7 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Text;
 
-namespace NativeCollection;
+namespace NativeCollection.UnsafeType;
 
 public unsafe partial struct SortedSet<T> : ICollection<T>, IDisposable where T : unmanaged, IEquatable<T>,IComparable<T>
 {
@@ -171,7 +171,7 @@ public unsafe partial struct SortedSet<T> : ICollection<T>, IDisposable where T 
         // Note: It's not strictly necessary to provide the stack capacity, but we don't
         // want the stack to unnecessarily allocate arrays as it grows.
 
-        var stack = Internal.Stack<IntPtr>.Create(2 * Log2(Count + 1));
+        var stack = UnsafeType.Stack<IntPtr>.Create(2 * Log2(Count + 1));
         var current = _root;
 
         while (current != null)
@@ -194,7 +194,7 @@ public unsafe partial struct SortedSet<T> : ICollection<T>, IDisposable where T 
         }
         stack->Dispose();
         NativeMemoryHelper.Free(stack);
-        GC.RemoveMemoryPressure(Unsafe.SizeOf<Internal.Stack<IntPtr>>());
+        GC.RemoveMemoryPressure(Unsafe.SizeOf<UnsafeType.Stack<IntPtr>>());
         return true;
     }
 
@@ -523,7 +523,7 @@ public unsafe partial struct SortedSet<T> : ICollection<T>, IDisposable where T 
         private readonly SortedSet<T>* _tree;
         private readonly int _version;
 
-        private readonly Internal.Stack<IntPtr>* _stack;
+        private readonly UnsafeType.Stack<IntPtr>* _stack;
         private readonly bool _reverse;
 
         internal Enumerator(SortedSet<T>* set)
@@ -539,7 +539,7 @@ public unsafe partial struct SortedSet<T> : ICollection<T>, IDisposable where T 
 
             // 2 log(n + 1) is the maximum height.
 
-            _stack = Internal.Stack<IntPtr>.Create(2 * Log2(set->TotalCount() + 1));
+            _stack = UnsafeType.Stack<IntPtr>.Create(2 * Log2(set->TotalCount() + 1));
             CurrentPointer = null;
             _reverse = reverse;
             Initialize();
@@ -613,7 +613,7 @@ public unsafe partial struct SortedSet<T> : ICollection<T>, IDisposable where T 
             //Console.WriteLine("Enumerator Dispose");
             _stack->Dispose();
             NativeMemoryHelper.Free(_stack);
-            GC.RemoveMemoryPressure(Unsafe.SizeOf<Stack<IntPtr>>());
+            GC.RemoveMemoryPressure(Unsafe.SizeOf<NativeCollection.Stack<IntPtr>>());
         }
 
         public T Current
