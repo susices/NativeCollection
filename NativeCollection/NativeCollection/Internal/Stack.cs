@@ -32,7 +32,6 @@ internal unsafe struct Stack<T> : IDisposable where T : unmanaged, IEquatable<T>
 
     public void Clear()
     {
-        ArrayLength = 0;
         Count = 0;
         _version++;
     }

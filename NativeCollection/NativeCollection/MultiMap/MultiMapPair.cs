@@ -9,7 +9,7 @@ public unsafe struct MultiMapPair<T, K> : IEquatable<MultiMapPair<T, K>>, ICompa
 
     private readonly Internal.List<K>* _value;
 
-    public ref Internal.List<K> Value => ref Unsafe.AsRef<Internal.List<K>>(_value);
+    internal ref Internal.List<K> Value => ref Unsafe.AsRef<Internal.List<K>>(_value);
 
     private MultiMapPair(T key)
     {

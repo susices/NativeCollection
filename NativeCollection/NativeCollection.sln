@@ -4,6 +4,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NativeCollection", "NativeC
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Benchmark", "Benchmark\Benchmark.csproj", "{3A5D66D6-2B33-4E99-86C2-92248472758C}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{5AE8E136-E26F-4D78-A185-3A7C17A06531}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{51879ABF-A076-4EBB-9B55-814F5EF1F571}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NativeCollection.Test", "NativeCollection.Test\NativeCollection.Test.csproj", "{9AAD09E7-B5FB-4715-A23D-519F0F7D8B61}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +24,13 @@ Global
 		{3A5D66D6-2B33-4E99-86C2-92248472758C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3A5D66D6-2B33-4E99-86C2-92248472758C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3A5D66D6-2B33-4E99-86C2-92248472758C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9AAD09E7-B5FB-4715-A23D-519F0F7D8B61}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9AAD09E7-B5FB-4715-A23D-519F0F7D8B61}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9AAD09E7-B5FB-4715-A23D-519F0F7D8B61}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9AAD09E7-B5FB-4715-A23D-519F0F7D8B61}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{905BB42C-1200-4233-9236-B83E966E29B7} = {5AE8E136-E26F-4D78-A185-3A7C17A06531}
+		{9AAD09E7-B5FB-4715-A23D-519F0F7D8B61} = {51879ABF-A076-4EBB-9B55-814F5EF1F571}
 	EndGlobalSection
 EndGlobal

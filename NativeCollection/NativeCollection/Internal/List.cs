@@ -5,7 +5,7 @@ using System.Text;
 
 namespace NativeCollection.Internal;
 
-public unsafe struct List<T> : ICollection<T>, IDisposable where T : unmanaged, IEquatable<T>
+internal unsafe struct List<T> : ICollection<T>, IDisposable where T : unmanaged, IEquatable<T>
 {
     private List<T>* self;
 

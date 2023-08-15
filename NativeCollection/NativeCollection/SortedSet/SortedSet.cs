@@ -19,6 +19,8 @@ public unsafe partial struct SortedSet<T> : ICollection<T>, IDisposable where T 
         var sortedSet = (SortedSet<T>*)NativeMemoryHelper.Alloc((UIntPtr)Unsafe.SizeOf<SortedSet<T>>());
         sortedSet->_self = sortedSet;
         sortedSet->_root = null;
+        sortedSet->_count = 0;
+        sortedSet->_version = 0;
         return sortedSet;
     }
 
@@ -190,7 +192,9 @@ public unsafe partial struct SortedSet<T> : ICollection<T>, IDisposable where T 
                 node = node->Left;
             }
         }
-
+        stack->Dispose();
+        NativeMemoryHelper.Free(stack);
+        GC.RemoveMemoryPressure(Unsafe.SizeOf<Internal.Stack<IntPtr>>());
         return true;
     }
 
@@ -539,6 +543,7 @@ public unsafe partial struct SortedSet<T> : ICollection<T>, IDisposable where T 
             CurrentPointer = null;
             _reverse = reverse;
             Initialize();
+            
         }
 
         private void Initialize()

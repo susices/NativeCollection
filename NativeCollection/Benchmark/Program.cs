@@ -9,10 +9,10 @@ public static class Program
     {
         // TestStack();
         //TestQueue();
-        //estSortedSet();
-        //TestSortedSetAddRemove();
+        //TestSortedSet();
+        TestSortedSetAddRemove();
         //TestList();
-        TestMultiMap();
+        //TestMultiMap();
         //TestHashSet();
     }
 
@@ -103,46 +103,24 @@ public static class Program
         }
     }
 
-    public static void TestSortedSetAddRemove()
+    public unsafe static void TestSortedSetAddRemove()
     {
-        var nativeSortedSet = new NativeCollection.SortedSet<int>();
-        nativeSortedSet.Add(1);
-        nativeSortedSet.Add(2);
-        nativeSortedSet.Add(3);
-        nativeSortedSet.Add(4);
-        nativeSortedSet.Add(5);
-        Console.WriteLine(nativeSortedSet);
+        var nativeSortedSet = NativeCollection.SortedSet<int>.Create();
+        nativeSortedSet->Add(5);
+        nativeSortedSet->Add(2);
+        nativeSortedSet->Add(3);
+        nativeSortedSet->Add(1);
+        nativeSortedSet->Add(4);
+        Console.WriteLine(nativeSortedSet->ToString());
 
-        nativeSortedSet.Remove(2);
-        nativeSortedSet.Remove(4);
-        Console.WriteLine(nativeSortedSet);
+        nativeSortedSet->Remove(2);
+        nativeSortedSet->Remove(4);
+        Console.WriteLine(nativeSortedSet->ToString());
     }
 
     public static unsafe void TestList()
     {
-        var list = NativeCollection.Internal.List<int>.Create(10);
-        list->Add(1);
-        list->Add(2);
-        list->Add(3);
-        list->Add(4);
-        list->Add(5);
-        list->Add(6);
-        list->Add(7);
-        list->Add(8);
-        list->Add(9);
-        list->Add(10);
-        list->Add(11);
-        list->Add(12);
-        list->Add(13);
-        list->Add(14);
-        list->Add(15);
-        Console.WriteLine((*list).ToString());
-
-        list->Remove(1);
-        // list->Remove(3);
-        // list->Remove(5);
-        // list->Remove(7);
-        Console.WriteLine((*list).ToString());
+        
     }
 
 
