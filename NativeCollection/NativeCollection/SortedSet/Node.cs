@@ -40,31 +40,36 @@ public unsafe partial struct SortedSet<T>
 
         public bool Is4Node => IsNonNullRed(Left) && IsNonNullRed(Right);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void ColorBlack()
         {
             Color = NodeColor.Black;
         }
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void ColorRed()
         {
             Color = NodeColor.Red;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsNonNullBlack(Node* node)
         {
             return node != null && node->IsBlack;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsNonNullRed(Node* node)
         {
             return node != null && node->IsRed;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsNullOrBlack(Node* node)
         {
             return node == null || node->IsBlack;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Node* Create(in T item, NodeColor nodeColor)
         {
             var node = (Node*)NativeMemory.Alloc((uint)Unsafe.SizeOf<Node>());
@@ -87,16 +92,19 @@ public unsafe partial struct SortedSet<T>
                 Target = target;
             }
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public bool Equals(NodeSourceTarget other)
             {
                 return Source == other.Source && Target == other.Target;
             }
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public override bool Equals(object? obj)
             {
                 return obj is NodeSourceTarget other && Equals(other);
             }
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public override int GetHashCode()
             {
                 return HashCode.Combine(unchecked((int)(long)Source), unchecked((int)(long)Target));
@@ -140,6 +148,7 @@ public unsafe partial struct SortedSet<T>
             return newRoot;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public TreeRotation GetRotation(Node* current, Node* sibling)
         {
             Debug.Assert(IsNonNullRed(sibling->Left) || IsNonNullRed(sibling->Right));
@@ -151,6 +160,7 @@ public unsafe partial struct SortedSet<T>
                 currentIsLeftChild ? TreeRotation.Left : TreeRotation.LeftRight;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Node* GetSibling(Node* node)
         {
             Debug.Assert(node != null);
@@ -159,11 +169,13 @@ public unsafe partial struct SortedSet<T>
             return node == Left ? Right : Left;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Node* ShallowClone()
         {
             return Create(Item, Color);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Split4Node()
         {
             Debug.Assert(Left != null);
@@ -174,6 +186,7 @@ public unsafe partial struct SortedSet<T>
             Right->ColorBlack();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Node* Rotate(TreeRotation rotation)
         {
             Node* removeRed;
@@ -201,6 +214,7 @@ public unsafe partial struct SortedSet<T>
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Node* RotateLeft()
         {
             var child = Right;
@@ -209,6 +223,7 @@ public unsafe partial struct SortedSet<T>
             return child;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Node* RotateLeftRight()
         {
             var child = Left;
@@ -221,6 +236,7 @@ public unsafe partial struct SortedSet<T>
             return grandChild;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Node* RotateRight()
         {
             var child = Left;
@@ -229,6 +245,7 @@ public unsafe partial struct SortedSet<T>
             return child;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Node* RotateRightLeft()
         {
             var child = Right;
@@ -241,6 +258,7 @@ public unsafe partial struct SortedSet<T>
             return grandChild;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Merge2Nodes()
         {
             Debug.Assert(IsRed);
@@ -253,6 +271,7 @@ public unsafe partial struct SortedSet<T>
             Right->ColorRed();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void ReplaceChild(Node* child, Node* newChild)
         {
 #if DEBUG
@@ -290,17 +309,20 @@ public unsafe partial struct SortedSet<T>
         }
 #endif
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool Equals(Node other)
         {
             return Item.Equals(other.Item) && Self == other.Self && Color == other.Color && Left == other.Left &&
                    Right == other.Right;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override bool Equals(object? obj)
         {
             return obj is Node other && Equals(other);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override int GetHashCode()
         {
             return HashCode.Combine(Item, unchecked((int)(long)Self), (int)Color, unchecked((int)(long)Left),

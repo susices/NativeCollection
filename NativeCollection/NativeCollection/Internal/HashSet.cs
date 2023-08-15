@@ -34,7 +34,6 @@ public unsafe struct HashSet<T> : ICollection<T>, IDisposable where T : unmanage
     private int _freeList;
     private int _freeCount;
     private int _version;
-    private static IEqualityComparer<T> _comparer = EqualityComparer<T>.Default;
 
     public static HashSet<T>* Create()
     {
@@ -101,13 +100,13 @@ public unsafe struct HashSet<T> : ICollection<T>, IDisposable where T : unmanage
     
     public bool Remove(T item)
     {
-        if (_buckets == null) return false;
+        //if (_buckets == null) return false;
         var entries = _entries;
         Debug.Assert(entries != null, "entries should be non-null");
 
         uint collisionCount = 0;
         int last = -1;
-        int hashCode = _comparer.GetHashCode(item);
+        int hashCode = item.GetHashCode();
 
         ref int bucket = ref GetBucketRef(hashCode);
         int i = bucket - 1; // Value in buckets is 1-based
@@ -116,7 +115,7 @@ public unsafe struct HashSet<T> : ICollection<T>, IDisposable where T : unmanage
         {
             ref Entry entry = ref entries[i];
 
-            if (entry.HashCode == hashCode && (_comparer?.Equals(entry.Value, item) ?? EqualityComparer<T>.Default.Equals(entry.Value, item)))
+            if (entry.HashCode == hashCode && (item.Equals(entry.Value)))
             {
                 if (last < 0)
                 {
@@ -200,19 +199,19 @@ public unsafe struct HashSet<T> : ICollection<T>, IDisposable where T : unmanage
     private bool AddIfNotPresent(T value, out int location)
     {
         //Console.WriteLine($"AddIfNotPresent:{value}");
-        if (_buckets == null) Initialize(0);
+        //if (_buckets == null) Initialize(0);
         Debug.Assert(_buckets != null);
 
         Entry* entries = _entries;
         Debug.Assert(entries != null, "expected entries to be non-null");
 
-        var comparer = _comparer;
+        //var comparer = _comparer;
         int hashCode;
 
         uint collisionCount = 0;
         ref var bucket = ref Unsafe.NullRef<int>();
         
-        hashCode =  comparer.GetHashCode(value);
+        hashCode =  value.GetHashCode();
         bucket = ref GetBucketRef(hashCode);
         
         var i = bucket - 1; // Value in _buckets is 1-based
@@ -222,7 +221,7 @@ public unsafe struct HashSet<T> : ICollection<T>, IDisposable where T : unmanage
             // Console.WriteLine($"i:{i}");
             ref Entry entry = ref _entries[i];
             // Console.WriteLine($"entry.HashCode:{entry.HashCode} hashCode:{hashCode} Equals:{comparer.Equals(entry.Value, value)}");
-            if (entry.HashCode == hashCode && comparer.Equals(entry.Value, value))
+            if (entry.HashCode == hashCode && value.Equals(entry.Value))
             {
                 location = i;
                 return false;
@@ -277,13 +276,13 @@ public unsafe struct HashSet<T> : ICollection<T>, IDisposable where T : unmanage
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private ref int GetBucketRef(int hashCode)
         {
-            var buckets = _buckets;
+            //var buckets = _buckets;
             
 #if TARGET_64BIT
-            return ref buckets[HashHelpers.FastMod((uint)hashCode, (uint)buckets.Length, _fastModMultiplier)];
+            return ref _buckets[HashHelpers.FastMod((uint)hashCode, (uint)_buckets.Length, _fastModMultiplier)];
 #else
             int index = (int)((uint)hashCode %(uint)_bucketLength);
-            return ref buckets[index];
+            return ref _buckets[index];
 #endif
         }
 
@@ -361,19 +360,19 @@ public unsafe struct HashSet<T> : ICollection<T>, IDisposable where T : unmanage
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int FindItemIndex(T item)
         {
-            if (_buckets == null) return -1;
+            //if (_buckets == null) return -1;
             var entries = _entries;
             Debug.Assert(entries != null, "Expected _entries to be initialized");
 
             uint collisionCount = 0;
-            IEqualityComparer<T>? comparer = _comparer;
-                
-            int hashCode = comparer.GetHashCode(item);
+            //IEqualityComparer<T>? comparer = _comparer;
+            
+            int hashCode = item.GetHashCode();
             int i = GetBucketRef(hashCode) - 1; // Value in _buckets is 1-based
             while (i >= 0)
             {
                 ref Entry entry = ref entries[i];
-                if (entry.HashCode == hashCode && comparer.Equals(entry.Value, item))
+                if (entry.HashCode == hashCode && item.Equals(entry.Value))
                 {
                     return i;
                 }

@@ -6,19 +6,19 @@ using System.Text;
 
 namespace NativeCollection;
 
-public unsafe partial struct SortedSet<T> : ICollection<T>, IDisposable where T : unmanaged, IEquatable<T>
+public unsafe partial struct SortedSet<T> : ICollection<T>, IDisposable where T : unmanaged, IEquatable<T>,IComparable<T>
 {
-    private SortedSet<T>* self;
-    private readonly IComparer<T> comparer => Comparer<T>.Default;
-    private int count;
-    private Node* root;
-    private int version;
+    private SortedSet<T>* _self;
+    //private readonly IComparer<T> comparer => Comparer<T>.Default;
+    private int _count;
+    private Node* _root;
+    private int _version;
 
     public static SortedSet<T>* Create()
     {
         var sortedSet = (SortedSet<T>*)NativeMemoryHelper.Alloc((UIntPtr)Unsafe.SizeOf<SortedSet<T>>());
-        sortedSet->self = sortedSet;
-        sortedSet->root = null;
+        sortedSet->_self = sortedSet;
+        sortedSet->_root = null;
         return sortedSet;
     }
 
@@ -28,9 +28,9 @@ public unsafe partial struct SortedSet<T> : ICollection<T>, IDisposable where T 
     {
         get
         {
-            if (root == null) return default;
+            if (_root == null) return default;
 
-            var current = root;
+            var current = _root;
             while (current->Left != null) current = current->Left;
 
             return current->Item;
@@ -43,9 +43,9 @@ public unsafe partial struct SortedSet<T> : ICollection<T>, IDisposable where T 
     {
         get
         {
-            if (root == null) return default;
+            if (_root == null) return default;
 
-            var current = root;
+            var current = _root;
             while (current->Right != null) current = current->Right;
 
             return current->Item;
@@ -58,7 +58,7 @@ public unsafe partial struct SortedSet<T> : ICollection<T>, IDisposable where T 
         get
         {
             VersionCheck(true);
-            return count;
+            return _count;
         }
     }
 
@@ -98,9 +98,9 @@ public unsafe partial struct SortedSet<T> : ICollection<T>, IDisposable where T 
 
         if (nodeCount != 0) GC.RemoveMemoryPressure(nodeCount * Unsafe.SizeOf<Node>());
 
-        root = null;
-        count = 0;
-        ++version;
+        _root = null;
+        _count = 0;
+        ++_version;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -122,7 +122,7 @@ public unsafe partial struct SortedSet<T> : ICollection<T>, IDisposable where T 
     public void Dispose()
     {
         Clear();
-        version = 0;
+        _version = 0;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -162,7 +162,7 @@ public unsafe partial struct SortedSet<T> : ICollection<T>, IDisposable where T 
     /// <returns><c>true</c> if the entire tree has been walked; otherwise, <c>false</c>.</returns>
     internal bool InOrderTreeWalk(TreeWalkPredicate action)
     {
-        if (root == null) return true;
+        if (_root == null) return true;
 
         // The maximum height of a red-black tree is 2 * log2(n+1).
         // See page 264 of "Introduction to algorithms" by Thomas H. Cormen
@@ -170,7 +170,7 @@ public unsafe partial struct SortedSet<T> : ICollection<T>, IDisposable where T 
         // want the stack to unnecessarily allocate arrays as it grows.
 
         var stack = Internal.Stack<IntPtr>.Create(2 * Log2(Count + 1));
-        var current = root;
+        var current = _root;
 
         while (current != null)
         {
@@ -220,36 +220,36 @@ public unsafe partial struct SortedSet<T> : ICollection<T>, IDisposable where T 
 
     internal bool AddIfNotPresent(T item)
     {
-        if (root == null)
+        if (_root == null)
         {
             // The tree is empty and this is the first item.
-            root = Node.Create(item, NodeColor.Black);
-            count = 1;
-            version++;
+            _root = Node.Create(item, NodeColor.Black);
+            _count = 1;
+            _version++;
             return true;
         }
 
         // Search for a node at bottom to insert the new node.
         // If we can guarantee the node we found is not a 4-node, it would be easy to do insertion.
         // We split 4-nodes along the search path.
-        var current = root;
+        var current = _root;
         Node* parent = null;
         Node* grandParent = null;
         Node* greatGrandParent = null;
 
         // Even if we don't actually add to the set, we may be altering its structure (by doing rotations and such).
         // So update `_version` to disable any instances of Enumerator/TreeSubSet from working on it.
-        version++;
+        _version++;
 
         var order = 0;
         while (current != null)
         {
-            order = comparer.Compare(item, current->Item);
+            order = item.CompareTo(current->Item);
             if (order == 0)
             {
                 // We could have changed root node to red during the search process.
                 // We need to set it to black before we return.
-                root->ColorBlack();
+                _root->ColorBlack();
                 return false;
             }
 
@@ -279,14 +279,14 @@ public unsafe partial struct SortedSet<T> : ICollection<T>, IDisposable where T 
         if (parent->IsRed) InsertionBalance(node, parent, grandParent, greatGrandParent);
 
         // The root node is always black.
-        root->ColorBlack();
-        ++count;
+        _root->ColorBlack();
+        ++_count;
         return true;
     }
 
     internal bool DoRemove(T item)
     {
-        if (root == null) return false;
+        if (_root == null) return false;
 
         // Search for a node and then find its successor.
         // Then copy the item from the successor to the matching node, and delete the successor.
@@ -298,9 +298,9 @@ public unsafe partial struct SortedSet<T> : ICollection<T>, IDisposable where T 
 
         // Even if we don't actually remove from the set, we may be altering its structure (by doing rotations
         // and such). So update our version to disable any enumerators/subsets working on it.
-        version++;
+        _version++;
 
-        var current = root;
+        var current = _root;
         Node* parent = null;
         Node* grandParent = null;
         Node* match = null;
@@ -364,7 +364,7 @@ public unsafe partial struct SortedSet<T> : ICollection<T>, IDisposable where T 
             }
 
             // We don't need to compare after we find the match.
-            var order = foundMatch ? -1 : comparer.Compare(item, current->Item);
+            var order = foundMatch ? -1 : item.CompareTo(current->Item);
             if (order == 0)
             {
                 // Save the matching node.
@@ -383,12 +383,12 @@ public unsafe partial struct SortedSet<T> : ICollection<T>, IDisposable where T 
         if (match != null)
         {
             ReplaceNode(match, parentOfMatch!, parent!, grandParent!);
-            --count;
+            --_count;
             NativeMemoryHelper.Free(match);
             GC.RemoveMemoryPressure(Unsafe.SizeOf<Node>());
         }
 
-        if (root != null) root->ColorBlack();
+        if (_root != null) _root->ColorBlack();
 
 
         return foundMatch;
@@ -440,7 +440,7 @@ public unsafe partial struct SortedSet<T> : ICollection<T>, IDisposable where T 
         if (parent != null)
             parent->ReplaceChild(child, newChild);
         else
-            root = newChild;
+            _root = newChild;
     }
 
     /// <summary>
@@ -483,10 +483,10 @@ public unsafe partial struct SortedSet<T> : ICollection<T>, IDisposable where T 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal Node* FindNode(T item)
     {
-        var current = root;
+        var current = _root;
         while (current != null)
         {
-            var order = comparer.Compare(item, current->Item);
+            var order = item.CompareTo(current->Item);
             if (order == 0) return current;
 
             current = order < 0 ? current->Left : current->Right;
@@ -498,7 +498,7 @@ public unsafe partial struct SortedSet<T> : ICollection<T>, IDisposable where T 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal void UpdateVersion()
     {
-        ++version;
+        ++_version;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -509,7 +509,7 @@ public unsafe partial struct SortedSet<T> : ICollection<T>, IDisposable where T 
 
     public Enumerator GetEnumerator()
     {
-        return new Enumerator(self);
+        return new Enumerator(_self);
     }
 
     internal delegate bool TreeWalkPredicate(Node* node);
@@ -531,7 +531,7 @@ public unsafe partial struct SortedSet<T> : ICollection<T>, IDisposable where T 
         {
             _tree = set;
             set->VersionCheck();
-            _version = set->version;
+            _version = set->_version;
 
             // 2 log(n + 1) is the maximum height.
 
@@ -544,12 +544,11 @@ public unsafe partial struct SortedSet<T> : ICollection<T>, IDisposable where T 
         private void Initialize()
         {
             CurrentPointer = null;
-            var node = _tree->root;
-            Node* next, other;
+            var node = _tree->_root;
             while (node != null)
             {
-                next = _reverse ? node->Right : node->Left;
-                other = _reverse ? node->Left : node->Right;
+                var next = _reverse ? node->Right : node->Left;
+                var other = _reverse ? node->Left : node->Right;
                 if (_tree->IsWithinRange(node->Item))
                 {
                     _stack->Push((IntPtr)node);
@@ -571,7 +570,7 @@ public unsafe partial struct SortedSet<T> : ICollection<T>, IDisposable where T 
             // Make sure that the underlying subset has not been changed since
             _tree->VersionCheck();
 
-            if (_version != _tree->version) throw new InvalidOperationException("_version != _tree.version");
+            if (_version != _tree->_version) throw new InvalidOperationException("_version != _tree.version");
 
             if (_stack->Count == 0)
             {
@@ -581,11 +580,10 @@ public unsafe partial struct SortedSet<T> : ICollection<T>, IDisposable where T 
 
             CurrentPointer = (Node*)_stack->Pop();
             var node = _reverse ? CurrentPointer->Left : CurrentPointer->Right;
-            Node* next, other;
             while (node != null)
             {
-                next = _reverse ? node->Right : node->Left;
-                other = _reverse ? node->Left : node->Right;
+                var next = _reverse ? node->Right : node->Left;
+                var other = _reverse ? node->Left : node->Right;
                 if (_tree->IsWithinRange(node->Item))
                 {
                     _stack->Push((IntPtr)node);
@@ -628,7 +626,7 @@ public unsafe partial struct SortedSet<T> : ICollection<T>, IDisposable where T 
 
         internal void Reset()
         {
-            if (_version != _tree->version) throw new InvalidOperationException("_version != _tree.version");
+            if (_version != _tree->_version) throw new InvalidOperationException("_version != _tree.version");
 
             _stack->Clear();
             Initialize();

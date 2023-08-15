@@ -31,7 +31,6 @@ public static unsafe class NativeMemoryHelper
     public static void* AllocZeroed(UIntPtr byteCount)
     {
         GC.AddMemoryPressure((long)byteCount);
-
 #if NET6_0_OR_GREATER
         return NativeMemory.AllocZeroed(byteCount);
 #else

@@ -9,11 +9,11 @@ public static class Program
     {
         // TestStack();
         //TestQueue();
-        //TestSortedSet();
+        //estSortedSet();
         //TestSortedSetAddRemove();
         //TestList();
-        //TestMultiMap();
-        TestHashSet();
+        TestMultiMap();
+        //TestHashSet();
     }
 
     public static void TestStack()
@@ -72,25 +72,32 @@ public static class Program
 
     public static void TestSortedSet()
     {
-        var input = new List<int>(1000000);
-        for (var i = 0; i < 1000000; i++) input.Add(Random.Shared.Next());
+        var input = new List<int>(100000);
+        for (var i = 0; i < 100000; i++) input.Add(Random.Shared.Next());
 
         var nativeSortedSet = new NativeCollection.SortedSet<int>();
         var managedSortedSet = new System.Collections.Generic.SortedSet<int>();
         {
             var stopwatch = Stopwatch.StartNew();
-            foreach (var value in input) nativeSortedSet.Add(value);
+            for (int i = 0; i < 10; i++)
+            {
+                foreach (var value in input) nativeSortedSet.Add(value);
 
-            foreach (var value in input) nativeSortedSet.Remove(value);
+                foreach (var value in input) nativeSortedSet.Remove(value);
+            }
+            
             stopwatch.Stop();
             Console.WriteLine($"native SortedSet : {stopwatch.ElapsedMilliseconds}");
         }
 
         {
             var stopwatch = Stopwatch.StartNew();
-            foreach (var value in input) managedSortedSet.Add(value);
+            for (int i = 0; i < 10; i++)
+            {
+                foreach (var value in input) managedSortedSet.Add(value);
 
-            foreach (var value in input) managedSortedSet.Remove(value);
+                foreach (var value in input) managedSortedSet.Remove(value);
+            }
             stopwatch.Stop();
             Console.WriteLine($"managed SortedSet : {stopwatch.ElapsedMilliseconds}");
         }
@@ -141,35 +148,43 @@ public static class Program
 
     public static void TestMultiMap()
     {
-        var input = new List<int>(1000000);
-        for (var i = 0; i < 1000000; i++) input.Add(Random.Shared.Next());
+        var input = new List<int>(100000);
+        for (var i = 0; i < 100000; i++) input.Add(Random.Shared.Next());
 
         var managedMultiMap = new SortedDictionary<int, List<int>>();
         var nativeMultiMap = new MultiMap<int, int>();
 
         {
             var stopwatch = Stopwatch.StartNew();
-            foreach (var value in input)
+            for (int i = 0; i < 10; i++)
             {
-                if (!managedMultiMap.TryGetValue(value, out var list))
+                foreach (var value in input)
                 {
-                    list = new List<int>();
-                    managedMultiMap.Add(value, list);
+                    if (!managedMultiMap.TryGetValue(value, out var list))
+                    {
+                        list = new List<int>();
+                        managedMultiMap.Add(value, list);
+                    }
+
+                    list.Add(1);
                 }
 
-                list.Add(1);
+                foreach (var value in input) managedMultiMap.Remove(value);
             }
-
-            foreach (var value in input) managedMultiMap.Remove(value);
+            
             stopwatch.Stop();
             Console.WriteLine($"managedMultiMap : {stopwatch.ElapsedMilliseconds}");
         }
 
         {
             var stopwatch = Stopwatch.StartNew();
-            foreach (var value in input) nativeMultiMap.Add(value, 1);
+            for (int i = 0; i < 10; i++)
+            {
+                foreach (var value in input) nativeMultiMap.Add(value, 1);
 
-            foreach (var value in input) nativeMultiMap.Remove(value);
+                foreach (var value in input) nativeMultiMap.Remove(value);
+            }
+
             stopwatch.Stop();
             Console.WriteLine($"nativeMultiMap : {stopwatch.ElapsedMilliseconds}");
         }
@@ -190,14 +205,18 @@ public static class Program
         
         {
             var stopwatch = Stopwatch.StartNew();
-            foreach (var value in input)
+            for (int i = 0; i < 10; i++)
             {
-                nativeHashSet->Add(value);
+                foreach (var value in input)
+                {
+                    nativeHashSet->Add(value);
+                }
+                foreach (var value in input)
+                {
+                    nativeHashSet->Remove(value);
+                }
             }
-            foreach (var value in input)
-            {
-                nativeHashSet->Remove(value);
-            }
+            
             stopwatch.Stop();
             Console.WriteLine($"nativeHashSet : {stopwatch.ElapsedMilliseconds}");
         }
@@ -205,16 +224,18 @@ public static class Program
         
         {
             var stopwatch = Stopwatch.StartNew();
-            foreach (var value in input)
+            for (int i = 0; i < 10; i++)
             {
-                managedHashSet.Add(value);
-            }
+                foreach (var value in input)
+                {
+                    managedHashSet.Add(value);
+                }
             
-            foreach (var value in input)
-            {
-                managedHashSet.Remove(value);
+                foreach (var value in input)
+                {
+                    managedHashSet.Remove(value);
+                }
             }
-            
             stopwatch.Stop();
             Console.WriteLine($"managedHashSet : {stopwatch.ElapsedMilliseconds}");
         }
