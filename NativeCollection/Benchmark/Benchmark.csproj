@@ -12,4 +12,10 @@
         <ProjectReference Include="..\NativeCollection\NativeCollection.csproj"/>
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="BenchmarkDotNet" Version="0.13.7" />
+      <PackageReference Include="BenchmarkDotNet.Diagnostics.Windows" Version="0.13.7" />
+    </ItemGroup>
+
+
 </Project>

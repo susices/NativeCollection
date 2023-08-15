@@ -53,4 +53,25 @@ public class MultiMapTest
         }
     }
     
+        
+    [Fact]
+    public void NativeCollectionClass()
+    {
+        MultiMap<int, int> multiMap = new MultiMap<int, int>();
+        multiMap.IsDisposed.Should().Be(false);
+        for (int i = 0; i < 100; i++)
+        {
+            multiMap.Add(Random.Shared.Next(),1);
+        }
+        multiMap.Dispose();
+        multiMap.IsDisposed.Should().Be(true);
+        multiMap.ReInit();
+        multiMap.IsDisposed.Should().Be(false);
+        multiMap.Count.Should().Be(0);
+        for (int i = 0; i < 100; i++)
+        {
+            multiMap.Add(Random.Shared.Next(),1);
+        }
+    }
+    
 }

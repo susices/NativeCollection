@@ -1,6 +1,8 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
 using System.Diagnostics;
+using Benchmark.Benchmarks;
+using BenchmarkDotNet.Running;
 using NativeCollection;
 using NativeCollection.UnsafeType;
 
@@ -11,11 +13,15 @@ public static class Program
         // TestStack();
         //TestQueue();
         //TestSortedSet();
-        TestSortedSetAddRemove();
+        //TestSortedSetAddRemove();
         //TestList();
         //TestMultiMap();
         //TestHashSet();
+
+        var summary = BenchmarkRunner.Run<SortedSet>();
     }
+    
+    
 
     public static void TestStack()
     {
