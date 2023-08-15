@@ -21,6 +21,7 @@ public unsafe class SortedSet<T> : ICollection<T>, INativeCollectionClass where 
         return GetEnumerator();
     }
     
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public UnsafeType.SortedSet<T>.Enumerator GetEnumerator()
     {
         return new UnsafeType.SortedSet<T>.Enumerator(_sortedSet);
@@ -28,29 +29,34 @@ public unsafe class SortedSet<T> : ICollection<T>, INativeCollectionClass where 
 
     void ICollection<T>.Add(T item)
     {
-        
+        _sortedSet->Add(item);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Add(T item)
     {
         return _sortedSet->Add(item);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Clear()
     {
         _sortedSet->Clear();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Contains(T item)
     {
         return _sortedSet->Contains(item);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void CopyTo(T[] array, int arrayIndex)
     {
         _sortedSet->CopyTo(array,arrayIndex);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Remove(T item)
     {
         return _sortedSet->Remove(item);

@@ -23,28 +23,34 @@ public unsafe class HashSet<T>: ICollection<T>, INativeCollectionClass where T :
         return GetEnumerator();
     }
     
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public UnsafeType.HashSet<T>.Enumerator GetEnumerator() => new UnsafeType.HashSet<T>.Enumerator(_hashSet);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Add(T item)
     {
         _hashSet->Add(item);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Clear()
     {
         _hashSet->Clear();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Contains(T item)
     {
         return _hashSet->Contains(item);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void CopyTo(T[] array, int arrayIndex)
     {
         _hashSet->CopyTo(array, arrayIndex);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Remove(T item)
     {
         return _hashSet->Remove(item);
@@ -52,6 +58,7 @@ public unsafe class HashSet<T>: ICollection<T>, INativeCollectionClass where T :
 
     public int Count => _hashSet->Count;
     public bool IsReadOnly => false;
+    
     public void Dispose()
     {
         if (IsDisposed)

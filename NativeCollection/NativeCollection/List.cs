@@ -23,46 +23,55 @@ public unsafe class List<T>: ICollection<T>, INativeCollectionClass where T:unma
         return GetEnumerator();
     }
     
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public UnsafeType.List<T>.Enumerator GetEnumerator()
     {
         return new UnsafeType.List<T>.Enumerator(_list);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Add(T item)
     {
         _list->Add(item);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Clear()
     {
         _list->Clear();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Contains(T item)
     {
         return _list->Contains(item);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void CopyTo(T[] array, int arrayIndex)
     {
         _list->CopyTo(array,arrayIndex);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Remove(T item)
     {
         return _list->Remove(item);
     }
-
+    
     public int Capacity
     {
         get => _list->Capacity;
         set => _list->Capacity = value;
     }
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int IndexOf(in T item)
     {
         return _list->IndexOf(item);
     }
     
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void RemoveAt(int index)
     {
         _list->RemoveAt(index);
@@ -85,7 +94,7 @@ public unsafe class List<T>: ICollection<T>, INativeCollectionClass where T:unma
             IsDisposed = true;
         }
     }
-
+    
     public void ReInit()
     {
         if (IsDisposed)

@@ -15,18 +15,22 @@ public unsafe class MultiMap<T, K> : IEnumerable<MultiMapPair<T, K>>, INativeCol
         IsDisposed = false;
     }
 
+    
     public Span<K> this[T key] => (*_multiMap)[key];
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Add(T key, K value)
     {
         _multiMap->Add(key,value);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Remove(T key, K value)
     {
         return _multiMap->Remove(key, value);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Remove(T key)
     {
         return _multiMap->Remove(key);
@@ -43,6 +47,7 @@ public unsafe class MultiMap<T, K> : IEnumerable<MultiMapPair<T, K>>, INativeCol
         return GetEnumerator();
     }
     
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public UnsafeType.SortedSet<MultiMapPair<T, K>>.Enumerator GetEnumerator()
     {
         return _multiMap->GetEnumerator();
