@@ -18,7 +18,7 @@ public unsafe struct MultiMap<T, K> : IEnumerable<MultiMapPair<T, K>>, IDisposab
     public Span<K> this[T key] {
         get
         {
-            var list = MultiMapPair<T, K>.Create(key);
+            var list = new MultiMapPair<T, K>(key);
             var node = _sortedSet->FindNode(list);
             if (node!=null)
             {
@@ -31,22 +31,24 @@ public unsafe struct MultiMap<T, K> : IEnumerable<MultiMapPair<T, K>>, IDisposab
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Add(T key, K value)
     {
-        var list = MultiMapPair<T, K>.Create(key);
+        var list = new MultiMapPair<T, K>(key);
         var node = _sortedSet->FindNode(list);
-
         if (node != null)
+        {
             list = node->Item;
+        }
         else
+        {
+            list = MultiMapPair<T, K>.Create(key);
             _sortedSet->Add(list);
-        
+        }
         list.Value.Add(value);
-
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Remove(T key, K value)
     {
-        var list = MultiMapPair<T, K>.Create(key);
+        var list = new MultiMapPair<T, K>(key);
         var node = _sortedSet->FindNode(list);
 
         if (node == null) return false;
@@ -61,8 +63,8 @@ public unsafe struct MultiMap<T, K> : IEnumerable<MultiMapPair<T, K>>, IDisposab
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Remove(T key)
     {
-        var list = MultiMapPair<T, K>.Create(key);
-        var node = _sortedSet->FindNode(list);
+        var list = new MultiMapPair<T, K>(key);
+        SortedSet<MultiMapPair<T, K>>.Node* node = _sortedSet->FindNode(list);
 
         if (node == null) return false;
         list = node->Item;

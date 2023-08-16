@@ -31,6 +31,7 @@ public unsafe struct List<T> : ICollection<T>, IDisposable where T : unmanaged, 
         return list;
     }
 
+    
     public T this[int index]
     {
         get
@@ -70,6 +71,8 @@ public unsafe struct List<T> : ICollection<T>, IDisposable where T : unmanaged, 
         }
     }
 
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Add(T value)
     {
         var array = _items;
@@ -85,11 +88,13 @@ public unsafe struct List<T> : ICollection<T>, IDisposable where T : unmanaged, 
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void CopyTo(T[] array, int arrayIndex)
     {
         throw new NotImplementedException();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Remove(T item)
     {
         var index = IndexOf(item);
@@ -103,14 +108,13 @@ public unsafe struct List<T> : ICollection<T>, IDisposable where T : unmanaged, 
         return false;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int IndexOf(in T item)
     {
-        for (var i = 0; i < Count; i++)
-            if (_items[i].Equals(item))
-                return i;
-        return -1;
+        return new Span<T>(_items, Count).IndexOf(item);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void RemoveAt(int index)
     {
         if ((uint)index >= (uint)Count) ThrowHelper.IndexMustBeLessException();
@@ -120,11 +124,13 @@ public unsafe struct List<T> : ICollection<T>, IDisposable where T : unmanaged, 
     }
 
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Clear()
     {
         Count = 0;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Contains(T item)
     {
         return IndexOf(item) >= 0;
@@ -153,6 +159,7 @@ public unsafe struct List<T> : ICollection<T>, IDisposable where T : unmanaged, 
 
     public bool IsReadOnly => false;
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void AddWithResize(in T item)
     {
         var size = Count;
@@ -161,6 +168,7 @@ public unsafe struct List<T> : ICollection<T>, IDisposable where T : unmanaged, 
         _items[size] = item;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void Grow(int capacity)
     {
         Debug.Assert(_arrayLength < capacity);
@@ -178,16 +186,19 @@ public unsafe struct List<T> : ICollection<T>, IDisposable where T : unmanaged, 
         Capacity = newcapacity;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Span<T> WrittenSpan()
     {
         return new Span<T>(_items, Count);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Span<T> TotalSpan()
     {
         return new Span<T>(_items, _arrayLength);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Dispose()
     {
         NativeMemoryHelper.Free(_items);
@@ -205,6 +216,7 @@ public unsafe struct List<T> : ICollection<T>, IDisposable where T : unmanaged, 
         return GetEnumerator();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Enumerator GetEnumerator()
     {
         return new Enumerator(self);
