@@ -15,6 +15,7 @@ namespace NativeCollection.UnsafeType
         public MultiMapPair(T key)
         {
             Key = key;
+            _value = null;
         }
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

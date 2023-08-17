@@ -657,7 +657,7 @@ namespace NativeCollection.UnsafeType
             Initialize();
         }
 
-        object? IEnumerator.Current
+        object IEnumerator.Current
         {
             get
             {

@@ -115,12 +115,6 @@ namespace NativeCollection.UnsafeType
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public override bool Equals(object? obj)
-            {
-                return obj is NodeSourceTarget other && Equals(other);
-            }
-
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public override int GetHashCode()
             {
                 return HashCode.Combine(unchecked((int)(long)Source), unchecked((int)(long)Target));
@@ -330,12 +324,6 @@ namespace NativeCollection.UnsafeType
         {
             return ((Object)Item).Equals(other.Item) && Self == other.Self && Color == other.Color && Left == other.Left &&
                    Right == other.Right;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override bool Equals(object? obj)
-        {
-            return obj is Node other && Equals(other);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

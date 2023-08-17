@@ -317,7 +317,8 @@ namespace NativeCollection.UnsafeType
         internal Enumerator(List<T>* items)
         {
             Items = items;
-            Initialize();
+            CurrentIndex = 0;
+            CurrentItem = default;
         }
 
         private void Initialize()
