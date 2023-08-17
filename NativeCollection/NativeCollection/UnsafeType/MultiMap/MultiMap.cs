@@ -1,9 +1,11 @@
+using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
-namespace NativeCollection.UnsafeType;
-
-public unsafe struct MultiMap<T, K> : IEnumerable<MultiMapPair<T, K>>, IDisposable
+namespace NativeCollection.UnsafeType
+{
+    public unsafe struct MultiMap<T, K> : IEnumerable<MultiMapPair<T, K>>, IDisposable
     where T : unmanaged, IEquatable<T>, IComparable<T> where K : unmanaged, IEquatable<K>
 {
     private UnsafeType.SortedSet<MultiMapPair<T, K>>* _sortedSet;
@@ -12,7 +14,7 @@ public unsafe struct MultiMap<T, K> : IEnumerable<MultiMapPair<T, K>>, IDisposab
 
     public static MultiMap<T, K>* Create(int maxPoolSize)
     {
-        MultiMap<T, K>* multiMap = (MultiMap<T, K>*)NativeMemoryHelper.Alloc((uint)Unsafe.SizeOf<MultiMap<T, K>>());
+        MultiMap<T, K>* multiMap = (MultiMap<T, K>*)NativeMemoryHelper.Alloc((UIntPtr)Unsafe.SizeOf<MultiMap<T, K>>());
         multiMap->_sortedSet = UnsafeType.SortedSet<MultiMapPair<T, K>>.Create(maxPoolSize);
         multiMap->_listPool = NativePool<List<K>>.Create(maxPoolSize);
         return multiMap;
@@ -119,3 +121,5 @@ public unsafe struct MultiMap<T, K> : IEnumerable<MultiMapPair<T, K>>, IDisposab
         }
     }
 }
+}
+

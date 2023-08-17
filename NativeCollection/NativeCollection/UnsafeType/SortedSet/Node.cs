@@ -1,12 +1,11 @@
+using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-namespace NativeCollection.UnsafeType;
-
-
-
-public unsafe partial struct SortedSet<T>
+namespace NativeCollection.UnsafeType
+{
+    public unsafe partial struct SortedSet<T>
 {
     internal enum NodeColor : byte
     {
@@ -73,7 +72,7 @@ public unsafe partial struct SortedSet<T>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Node* Create(in T item, NodeColor nodeColor)
         {
-            var node = (Node*)NativeMemoryHelper.Alloc((uint)Unsafe.SizeOf<Node>());
+            var node = (Node*)NativeMemoryHelper.Alloc((UIntPtr)Unsafe.SizeOf<Node>());
             node->Self = node;
             node->Item = item;
             node->Color = nodeColor;
@@ -362,3 +361,7 @@ public unsafe partial struct SortedSet<T>
         }
     }
 }
+}
+
+
+

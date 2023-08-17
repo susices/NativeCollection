@@ -1,11 +1,13 @@
+using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Text;
 
-namespace NativeCollection.UnsafeType;
-
-public unsafe struct List<T> : ICollection<T>, IDisposable, IPool where T : unmanaged, IEquatable<T>
+namespace NativeCollection.UnsafeType
+{
+    public unsafe struct List<T> : ICollection<T>, IDisposable, IPool where T : unmanaged, IEquatable<T>
 {
     private List<T>* self;
 
@@ -19,12 +21,12 @@ public unsafe struct List<T> : ICollection<T>, IDisposable, IPool where T : unma
     {
         if (initialCapacity < 0) ThrowHelper.ListInitialCapacityException();
 
-        var list = (List<T>*)NativeMemoryHelper.Alloc((uint)Unsafe.SizeOf<List<T>>());
+        var list = (List<T>*)NativeMemoryHelper.Alloc((UIntPtr)Unsafe.SizeOf<List<T>>());
 
         if (initialCapacity < _defaultCapacity)
             initialCapacity = _defaultCapacity; // Simplify doubling logic in Push.
 
-        list->_items = (T*)NativeMemoryHelper.Alloc((uint)initialCapacity, (uint)Unsafe.SizeOf<T>());
+        list->_items = (T*)NativeMemoryHelper.Alloc((UIntPtr)initialCapacity, (UIntPtr)Unsafe.SizeOf<T>());
         list->_arrayLength = initialCapacity;
         list->Count = 0;
         list->self = list;
@@ -250,7 +252,7 @@ public unsafe struct List<T> : ICollection<T>, IDisposable, IPool where T : unma
 
         // Allow the list to grow to maximum possible capacity (~2G elements) before encountering overflow.
         // Note that this check works even when _items.Length overflowed thanks to the (uint) cast
-        if ((uint)newcapacity > Array.MaxLength) newcapacity = Array.MaxLength;
+        if ((uint)newcapacity > 0X7FFFFFC7) newcapacity = 0X7FFFFFC7;
 
         // If the computed capacity is still less than specified, set to the original argument.
         // Capacities exceeding Array.MaxLength will be surfaced as OutOfMemoryException by Array.Resize.
@@ -356,3 +358,5 @@ public unsafe struct List<T> : ICollection<T>, IDisposable, IPool where T : unma
         
     }
 }
+}
+

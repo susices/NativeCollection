@@ -1,11 +1,13 @@
+using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Text;
 
-namespace NativeCollection.UnsafeType;
-
-public unsafe struct HashSet<T> : ICollection<T>, IDisposable where T : unmanaged, IEquatable<T>
+namespace NativeCollection.UnsafeType
+{
+    public unsafe struct HashSet<T> : ICollection<T>, IDisposable where T : unmanaged, IEquatable<T>
 {
     /// <summary>Cutoff point for stackallocs. This corresponds to the number of ints.</summary>
     private const int StackAllocThreshold = 100;
@@ -128,11 +130,6 @@ public unsafe struct HashSet<T> : ICollection<T>, IDisposable where T : unmanage
 
                 Debug.Assert((StartOfFreeList - _freeList) < 0, "shouldn't underflow because max hashtable length is MaxPrimeArrayLength = 0x7FEFFFFD(2146435069) _freelist underflow threshold 2147483646");
                 entry.Next = StartOfFreeList - _freeList;
-
-                if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
-                {
-                    entry.Value = default!;
-                }
 
                 _freeList = i;
                 _freeCount++;
@@ -475,3 +472,5 @@ public unsafe struct HashSet<T> : ICollection<T>, IDisposable where T : unmanage
         }
     }
 }
+}
+

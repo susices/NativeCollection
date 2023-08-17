@@ -1,9 +1,11 @@
+using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
-namespace NativeCollection;
-
-public unsafe class SortedSet<T> : ICollection<T>, INativeCollectionClass where T : unmanaged, IEquatable<T>,IComparable<T>
+namespace NativeCollection
+{
+    public unsafe class SortedSet<T> : ICollection<T>, INativeCollectionClass where T : unmanaged, IEquatable<T>,IComparable<T>
 {
     private UnsafeType.SortedSet<T>* _sortedSet;
     private const int _defaultNodePoolSize = 200;
@@ -95,3 +97,5 @@ public unsafe class SortedSet<T> : ICollection<T>, INativeCollectionClass where 
 
     public bool IsDisposed { get; private set; }
 }
+}
+

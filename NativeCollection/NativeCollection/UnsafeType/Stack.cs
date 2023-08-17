@@ -1,8 +1,9 @@
+using System;
 using System.Runtime.CompilerServices;
 
-namespace NativeCollection.UnsafeType;
-
-public unsafe struct Stack<T> : IDisposable where T : unmanaged
+namespace NativeCollection.UnsafeType
+{
+    public unsafe struct Stack<T> : IDisposable where T : unmanaged
 {
     private T* _array;
     private int _version;
@@ -13,13 +14,13 @@ public unsafe struct Stack<T> : IDisposable where T : unmanaged
     {
         if (initialCapacity < 0) ThrowHelper.StackInitialCapacityException();
 
-        var stack = (Stack<T>*)NativeMemoryHelper.Alloc((uint)System.Runtime.CompilerServices.Unsafe.SizeOf<Stack<T>>());
+        var stack = (Stack<T>*)NativeMemoryHelper.Alloc((UIntPtr)System.Runtime.CompilerServices.Unsafe.SizeOf<Stack<T>>());
         GC.AddMemoryPressure(System.Runtime.CompilerServices.Unsafe.SizeOf<Stack<T>>());
 
         if (initialCapacity < _defaultCapacity)
             initialCapacity = _defaultCapacity; // Simplify doubling logic in Push.
 
-        stack->_array = (T*)NativeMemoryHelper.Alloc((uint)initialCapacity, (uint)System.Runtime.CompilerServices.Unsafe.SizeOf<T>());
+        stack->_array = (T*)NativeMemoryHelper.Alloc((UIntPtr)initialCapacity, (UIntPtr)System.Runtime.CompilerServices.Unsafe.SizeOf<T>());
         GC.AddMemoryPressure(initialCapacity * System.Runtime.CompilerServices.Unsafe.SizeOf<T>());
         stack->ArrayLength = initialCapacity;
         stack->Count = 0;
@@ -87,7 +88,7 @@ public unsafe struct Stack<T> : IDisposable where T : unmanaged
     {
         if (Count == ArrayLength)
         {
-            var newArray = (T*)NativeMemoryHelper.Alloc((uint)ArrayLength * 2, (uint)System.Runtime.CompilerServices.Unsafe.SizeOf<T>());
+            var newArray = (T*)NativeMemoryHelper.Alloc((UIntPtr)(ArrayLength * 2), (UIntPtr)System.Runtime.CompilerServices.Unsafe.SizeOf<T>());
             System.Runtime.CompilerServices.Unsafe.CopyBlockUnaligned(newArray, _array, (uint)(Count * System.Runtime.CompilerServices.Unsafe.SizeOf<T>()));
             NativeMemoryHelper.Free(_array);
             GC.RemoveMemoryPressure(ArrayLength * System.Runtime.CompilerServices.Unsafe.SizeOf<T>());
@@ -105,3 +106,6 @@ public unsafe struct Stack<T> : IDisposable where T : unmanaged
         GC.RemoveMemoryPressure(ArrayLength * System.Runtime.CompilerServices.Unsafe.SizeOf<T>());
     }
 }
+}
+
+

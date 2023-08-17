@@ -1,8 +1,9 @@
+using System;
 using System.Runtime.CompilerServices;
 
-namespace NativeCollection.UnsafeType;
-
-public unsafe struct Queue<T> : IDisposable where T : unmanaged
+namespace NativeCollection.UnsafeType
+{
+    public unsafe struct Queue<T> : IDisposable where T : unmanaged
 {
     private T* _array;
     private int length;
@@ -15,8 +16,8 @@ public unsafe struct Queue<T> : IDisposable where T : unmanaged
     {
         if (capacity < 0) throw new ArgumentOutOfRangeException("Capacity<0");
 
-        var queue = (Queue<T>*)NativeMemoryHelper.Alloc((uint)Unsafe.SizeOf<Queue<T>>());
-        queue->_array = (T*)NativeMemoryHelper.Alloc((uint)capacity, (uint)Unsafe.SizeOf<T>());
+        var queue = (Queue<T>*)NativeMemoryHelper.Alloc((UIntPtr)Unsafe.SizeOf<Queue<T>>());
+        queue->_array = (T*)NativeMemoryHelper.Alloc((UIntPtr)capacity, (UIntPtr)Unsafe.SizeOf<T>());
         queue->length = capacity;
         queue->_head = 0;
         queue->_tail = 0;
@@ -115,7 +116,7 @@ public unsafe struct Queue<T> : IDisposable where T : unmanaged
 
     private void SetCapacity(int capacity)
     {
-        var destinationArray = (T*)NativeMemoryHelper.Alloc((uint)capacity, (uint)Unsafe.SizeOf<T>());
+        var destinationArray = (T*)NativeMemoryHelper.Alloc((UIntPtr)capacity, (UIntPtr)Unsafe.SizeOf<T>());
         if (Count > 0)
         {
             if (_head < _tail)
@@ -158,3 +159,5 @@ public unsafe struct Queue<T> : IDisposable where T : unmanaged
         }
     }
 }
+}
+

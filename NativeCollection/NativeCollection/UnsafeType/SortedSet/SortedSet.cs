@@ -1,12 +1,14 @@
+using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Text;
 
-namespace NativeCollection.UnsafeType;
-
-public unsafe partial struct SortedSet<T> : ICollection<T>, IDisposable where T : unmanaged, IEquatable<T>,IComparable<T>
+namespace NativeCollection.UnsafeType
+{
+    public unsafe partial struct SortedSet<T> : ICollection<T>, IDisposable where T : unmanaged, IEquatable<T>,IComparable<T>
 {
     private SortedSet<T>* _self;
     private int _count;
@@ -144,7 +146,7 @@ public unsafe partial struct SortedSet<T> : ICollection<T>, IDisposable where T 
 
     public void CopyTo(T[] array, int index, int count)
     {
-        ArgumentNullException.ThrowIfNull(array);
+        //ArgumentNullException.ThrowIfNull(array);
 
         if (index < 0) throw new ArgumentOutOfRangeException(nameof(index), index, "ArgumentOutOfRange_NeedNonNegNum");
 
@@ -517,9 +519,18 @@ public unsafe partial struct SortedSet<T> : ICollection<T>, IDisposable where T 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static int Log2(int value)
     {
+#if NET6_0_OR_GREATER
         return BitOperations.Log2((uint)value);
+#else
+        int num = 0;
+        for (; value > 0; value >>= 1)
+            ++num;
+        return num;
+#endif
     }
 
+    
+    
     public Enumerator GetEnumerator()
     {
         return new Enumerator(_self);
@@ -670,3 +681,6 @@ public unsafe partial struct SortedSet<T> : ICollection<T>, IDisposable where T 
         return sb.ToString();
     }
 }
+}
+
+

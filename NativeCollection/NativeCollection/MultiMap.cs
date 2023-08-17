@@ -1,10 +1,12 @@
+using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using NativeCollection.UnsafeType;
 
-namespace NativeCollection;
-
-public unsafe class MultiMap<T, K> : IEnumerable<MultiMapPair<T, K>>, INativeCollectionClass
+namespace NativeCollection
+{
+    public unsafe class MultiMap<T, K> : IEnumerable<MultiMapPair<T, K>>, INativeCollectionClass
     where T : unmanaged, IEquatable<T>, IComparable<T> where K : unmanaged, IEquatable<K>
 {
     private UnsafeType.MultiMap<T, K>* _multiMap;
@@ -92,3 +94,5 @@ public unsafe class MultiMap<T, K> : IEnumerable<MultiMapPair<T, K>>, INativeCol
         Dispose();
     }
 }
+}
+

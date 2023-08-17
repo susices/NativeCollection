@@ -1,9 +1,11 @@
+using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
-namespace NativeCollection;
-
-public unsafe class HashSet<T>: ICollection<T>, INativeCollectionClass where T : unmanaged, IEquatable<T>
+namespace NativeCollection
+{
+    public unsafe class HashSet<T>: ICollection<T>, INativeCollectionClass where T : unmanaged, IEquatable<T>
 {
 
     private UnsafeType.HashSet<T>* _hashSet;
@@ -90,3 +92,5 @@ public unsafe class HashSet<T>: ICollection<T>, INativeCollectionClass where T :
         Dispose();
     }
 }
+}
+

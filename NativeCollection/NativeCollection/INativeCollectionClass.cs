@@ -1,8 +1,12 @@
-namespace NativeCollection;
+using System;
 
-public interface INativeCollectionClass : IDisposable
+namespace NativeCollection
 {
-    void ReInit();
+    public interface INativeCollectionClass : IDisposable
+    {
+        void ReInit();
 
-    bool IsDisposed { get; }
+        bool IsDisposed { get; }
+    }
 }
+

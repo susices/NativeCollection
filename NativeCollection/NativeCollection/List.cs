@@ -1,9 +1,11 @@
+using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
-namespace NativeCollection;
-
-public unsafe class List<T>: ICollection<T>, INativeCollectionClass where T:unmanaged, IEquatable<T>
+namespace NativeCollection
+{
+    public unsafe class List<T>: ICollection<T>, INativeCollectionClass where T:unmanaged, IEquatable<T>
 {
     private UnsafeType.List<T>* _list;
     private const int _defaultCapacity = 10;
@@ -113,3 +115,6 @@ public unsafe class List<T>: ICollection<T>, INativeCollectionClass where T:unma
         Dispose();
     }
 }
+}
+
+

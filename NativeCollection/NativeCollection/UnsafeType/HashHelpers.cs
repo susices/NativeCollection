@@ -1,6 +1,8 @@
-namespace NativeCollection.UnsafeType;
+using System;
 
-public static class HashHelpers
+namespace NativeCollection.UnsafeType
+{
+    public static class HashHelpers
 {
     public const uint HashCollisionThreshold = 100;
 
@@ -127,3 +129,5 @@ public static class HashHelpers
         ulong.MaxValue / divisor + 1;
     
 }
+}
+
