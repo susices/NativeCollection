@@ -8,10 +8,13 @@ public unsafe struct MultiMap<T, K> : IEnumerable<MultiMapPair<T, K>>, IDisposab
 {
     private UnsafeType.SortedSet<MultiMapPair<T, K>>* _sortedSet;
 
-    public static MultiMap<T, K>* Create()
+    private NativePool<List<K>>* _listPool;
+
+    public static MultiMap<T, K>* Create(int maxPoolSize)
     {
         MultiMap<T, K>* multiMap = (MultiMap<T, K>*)NativeMemoryHelper.Alloc((uint)Unsafe.SizeOf<MultiMap<T, K>>());
-        multiMap->_sortedSet = UnsafeType.SortedSet<MultiMapPair<T, K>>.Create();
+        multiMap->_sortedSet = UnsafeType.SortedSet<MultiMapPair<T, K>>.Create(maxPoolSize);
+        multiMap->_listPool = NativePool<List<K>>.Create(maxPoolSize);
         return multiMap;
     }
 
@@ -39,7 +42,7 @@ public unsafe struct MultiMap<T, K> : IEnumerable<MultiMapPair<T, K>>, IDisposab
         }
         else
         {
-            list = MultiMapPair<T, K>.Create(key);
+            list = MultiMapPair<T, K>.Create(key,_listPool);
             _sortedSet->Add(list);
         }
         list.Value.Add(value);
@@ -69,7 +72,7 @@ public unsafe struct MultiMap<T, K> : IEnumerable<MultiMapPair<T, K>>, IDisposab
         if (node == null) return false;
         list = node->Item;
         var sortedSetRemove = _sortedSet->Remove(list);
-        list.Dispose();
+        list.Dispose(_listPool);
         return sortedSetRemove;
     }
 
@@ -104,8 +107,15 @@ public unsafe struct MultiMap<T, K> : IEnumerable<MultiMapPair<T, K>>, IDisposab
         if (_sortedSet != null)
         {
             _sortedSet->Dispose();
+            NativeMemoryHelper.Free(_sortedSet);
+            GC.RemoveMemoryPressure(Unsafe.SizeOf<UnsafeType.SortedSet<MultiMapPair<T, K>>>());
+        }
+
+        if (_listPool!=null)
+        {
+            _listPool->Dispose();
+            NativeMemoryHelper.Free(_listPool);
+            GC.RemoveMemoryPressure(Unsafe.SizeOf<NativePool<List<K>>>());
         }
     }
-    
-   
 }

@@ -77,13 +77,7 @@ public unsafe class List<T>: ICollection<T>, INativeCollectionClass where T:unma
         _list->RemoveAt(index);
     }
 
-    public T this[int index]
-    {
-        get
-        {
-            return (*_list)[index];
-        }
-    }
+    public ref T this[int index] => ref (*_list)[index];
 
     public int Count => _list->Count;
     public bool IsReadOnly => false;

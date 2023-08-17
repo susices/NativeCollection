@@ -9,9 +9,11 @@ public unsafe class MultiMap<T, K> : IEnumerable<MultiMapPair<T, K>>, INativeCol
 {
     private UnsafeType.MultiMap<T, K>* _multiMap;
 
-    public MultiMap()
+    private const int _defaultPoolSize = 200;
+    
+    public MultiMap(int maxPoolSize = _defaultPoolSize)
     {
-        _multiMap = UnsafeType.MultiMap<T, K>.Create();
+        _multiMap = UnsafeType.MultiMap<T, K>.Create(maxPoolSize);
         IsDisposed = false;
     }
     
@@ -78,7 +80,7 @@ public unsafe class MultiMap<T, K> : IEnumerable<MultiMapPair<T, K>>, INativeCol
     {
         if (IsDisposed)
         {
-            _multiMap = UnsafeType.MultiMap<T, K>.Create();
+            _multiMap = UnsafeType.MultiMap<T, K>.Create(_defaultPoolSize);
             IsDisposed = false;
         }
     }

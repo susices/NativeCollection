@@ -4,23 +4,24 @@ using System.Runtime.InteropServices;
 
 namespace NativeCollection.UnsafeType;
 
-internal enum NodeColor : byte
-{
-    Black,
-    Red
-}
 
-internal enum TreeRotation : byte
-{
-    Left,
-    LeftRight,
-    Right,
-    RightLeft
-}
 
 public unsafe partial struct SortedSet<T>
 {
-    internal struct Node : IEquatable<Node>
+    internal enum NodeColor : byte
+    {
+        Black,
+        Red
+    }
+
+    internal enum TreeRotation : byte
+    {
+        Left,
+        LeftRight,
+        Right,
+        RightLeft
+    }
+    internal struct Node : IEquatable<Node>, IPool
     {
         public T Item;
 
@@ -72,7 +73,23 @@ public unsafe partial struct SortedSet<T>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Node* Create(in T item, NodeColor nodeColor)
         {
-            var node = (Node*)NativeMemory.Alloc((uint)Unsafe.SizeOf<Node>());
+            var node = (Node*)NativeMemoryHelper.Alloc((uint)Unsafe.SizeOf<Node>());
+            node->Self = node;
+            node->Item = item;
+            node->Color = nodeColor;
+            node->Left = null;
+            node->Right = null;
+            return node;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Node* AllocFromPool(in T item, NodeColor nodeColor, NativePool<Node>* pool)
+        {
+            var node = pool->Alloc();
+            if (node==null)
+            {
+                return Create(item, nodeColor);
+            }
             node->Self = node;
             node->Item = item;
             node->Color = nodeColor;
@@ -327,6 +344,21 @@ public unsafe partial struct SortedSet<T>
         {
             return HashCode.Combine(Item, unchecked((int)(long)Self), (int)Color, unchecked((int)(long)Left),
                 unchecked((int)(long)Right));
+        }
+
+        public void Dispose()
+        {
+            
+        }
+
+        public void OnReturnToPool()
+        {
+            
+        }
+
+        public void OnGetFromPool()
+        {
+            
         }
     }
 }

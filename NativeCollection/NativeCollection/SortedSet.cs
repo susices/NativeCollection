@@ -6,9 +6,10 @@ namespace NativeCollection;
 public unsafe class SortedSet<T> : ICollection<T>, INativeCollectionClass where T : unmanaged, IEquatable<T>,IComparable<T>
 {
     private UnsafeType.SortedSet<T>* _sortedSet;
-    public SortedSet()
+    private const int _defaultNodePoolSize = 200;
+    public SortedSet(int nodePoolSize = _defaultNodePoolSize)
     {
-        _sortedSet = UnsafeType.SortedSet<T>.Create();
+        _sortedSet = UnsafeType.SortedSet<T>.Create(nodePoolSize);
         IsDisposed = false;
     }
     IEnumerator<T> IEnumerable<T>.GetEnumerator()
@@ -87,7 +88,7 @@ public unsafe class SortedSet<T> : ICollection<T>, INativeCollectionClass where 
     {
         if (IsDisposed)
         {
-            _sortedSet = UnsafeType.SortedSet<T>.Create();
+            _sortedSet = UnsafeType.SortedSet<T>.Create(_defaultNodePoolSize);
             IsDisposed = false;
         }
     }

@@ -2,7 +2,7 @@ using System.Runtime.CompilerServices;
 
 namespace NativeCollection.UnsafeType;
 
-public unsafe struct MultiMapPair<T, K> : IEquatable<MultiMapPair<T, K>>, IComparable<MultiMapPair<T, K>>, IDisposable
+public unsafe struct MultiMapPair<T, K> : IEquatable<MultiMapPair<T, K>>, IComparable<MultiMapPair<T, K>>
     where T : unmanaged, IEquatable<T>, IComparable<T> where K : unmanaged, IEquatable<K>
 {
     private UnsafeType.List<K>* _value;
@@ -17,10 +17,15 @@ public unsafe struct MultiMapPair<T, K> : IEquatable<MultiMapPair<T, K>>, ICompa
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static MultiMapPair<T, K> Create(T key)
+    public static MultiMapPair<T, K> Create(T key, NativePool<List<K>>* pool)
     {
         var pair = new MultiMapPair<T, K>(key);
-        pair._value = List<K>.Create();
+        var list = pool->Alloc();
+        if (list==null)
+        {
+            list = List<K>.Create();
+        }
+        pair._value = list;
         return pair;
     }
 
@@ -43,13 +48,11 @@ public unsafe struct MultiMapPair<T, K> : IEquatable<MultiMapPair<T, K>>, ICompa
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Dispose()
+    public void Dispose(NativePool<List<K>>* pool)
     {
         if (_value!=null)
         {
-            _value->Dispose();
-            NativeMemoryHelper.Free(_value);
-            GC.RemoveMemoryPressure(Unsafe.SizeOf<UnsafeType.List<K>>());
+            pool->Return(_value);
         }
     }
 }

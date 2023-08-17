@@ -2,7 +2,7 @@ using System.Runtime.CompilerServices;
 
 namespace NativeCollection.UnsafeType;
 
-public unsafe struct Stack<T> : IDisposable where T : unmanaged, IEquatable<T>
+public unsafe struct Stack<T> : IDisposable where T : unmanaged
 {
     private T* _array;
     private int _version;

@@ -18,7 +18,7 @@ public class BenchmarkMultiMap
     [GlobalSetup(Targets = new []{nameof(NativeAddAllAndRemoveAll),nameof(ManagedAddAllAndRemoveAll)})]
     public void InitAddAllAndRemoveAll()
     {
-        nativeMultiMap = new NativeCollection.MultiMap<int, int>();
+        nativeMultiMap = new NativeCollection.MultiMap<int, int>(1000);
         managedMultiMap = new MultiMap<int, int>(1000);
         ValueCount = 5;
         input = new System.Collections.Generic.List<int>();
@@ -82,7 +82,7 @@ public class BenchmarkMultiMap
     [GlobalSetup(Targets = new []{nameof(NativeAddAndRemove),nameof(ManagedAddAndRemove)})]
     public void InitAddAndRemove()
     {
-        nativeMultiMap = new NativeCollection.MultiMap<int, int>();
+        nativeMultiMap = new NativeCollection.MultiMap<int, int>(1000);
         managedMultiMap = new MultiMap<int, int>(1000);
         ValueCount = 5;
         input = new System.Collections.Generic.List<int>();
@@ -141,64 +141,64 @@ public class BenchmarkMultiMap
     }
 
 
-    [GlobalSetup(Targets = new []{nameof(NativeEnumerate),nameof(ManagedEnumerate)})]
-    public void InitEnumerate()
-    {
-        nativeMultiMap = new NativeCollection.MultiMap<int, int>();
-        managedMultiMap = new MultiMap<int, int>(1000);
-        ValueCount = 5;
-        input = new System.Collections.Generic.List<int>();
-        for (int i = 0; i < KeyCount; i++)
-        {
-            input.Add(Random.Shared.Next());
-        }
-        foreach (var key in input)
-        {
-            for (int i = 0; i < ValueCount; i++)
-            {
-                nativeMultiMap.Add(key,i);
-            }
-        }
-        foreach (var key in input)
-        {
-            for (int i = 0; i < ValueCount; i++)
-            {
-                managedMultiMap.Add(key,i);
-            }
-        }
-    }
-
-    [BenchmarkCategory("Enumerate")]
-    [Benchmark]
-    public void NativeEnumerate()
-    {
-        var enumerator = nativeMultiMap.GetEnumerator();
-        while (enumerator.MoveNext())
-        {
-            var pair = enumerator.Current;
-            
-            foreach (var listValue in pair.Value)
-            {
-                var value = listValue;
-            }
-        }
-    }
-
-    
-    [BenchmarkCategory("Enumerate")]
-    [Benchmark(Baseline = true)]
-    public void ManagedEnumerate()
-    {
-        var enumerator = managedMultiMap.GetEnumerator();
-        while (enumerator.MoveNext())
-        {
-            var pair = enumerator.Current;
-            foreach (var listValue in pair.Value)
-            {
-                var value = listValue;
-            }
-        }
-    }
+    // [GlobalSetup(Targets = new []{nameof(NativeEnumerate),nameof(ManagedEnumerate)})]
+    // public void InitEnumerate()
+    // {
+    //     nativeMultiMap = new NativeCollection.MultiMap<int, int>();
+    //     managedMultiMap = new MultiMap<int, int>(1000);
+    //     ValueCount = 5;
+    //     input = new System.Collections.Generic.List<int>();
+    //     for (int i = 0; i < KeyCount; i++)
+    //     {
+    //         input.Add(Random.Shared.Next());
+    //     }
+    //     foreach (var key in input)
+    //     {
+    //         for (int i = 0; i < ValueCount; i++)
+    //         {
+    //             nativeMultiMap.Add(key,i);
+    //         }
+    //     }
+    //     foreach (var key in input)
+    //     {
+    //         for (int i = 0; i < ValueCount; i++)
+    //         {
+    //             managedMultiMap.Add(key,i);
+    //         }
+    //     }
+    // }
+    //
+    // [BenchmarkCategory("Enumerate")]
+    // [Benchmark]
+    // public void NativeEnumerate()
+    // {
+    //     var enumerator = nativeMultiMap.GetEnumerator();
+    //     while (enumerator.MoveNext())
+    //     {
+    //         var pair = enumerator.Current;
+    //         
+    //         foreach (var listValue in pair.Value)
+    //         {
+    //             var value = listValue;
+    //         }
+    //     }
+    // }
+    //
+    //
+    // [BenchmarkCategory("Enumerate")]
+    // [Benchmark(Baseline = true)]
+    // public void ManagedEnumerate()
+    // {
+    //     var enumerator = managedMultiMap.GetEnumerator();
+    //     while (enumerator.MoveNext())
+    //     {
+    //         var pair = enumerator.Current;
+    //         foreach (var listValue in pair.Value)
+    //         {
+    //             var value = listValue;
+    //         }
+    //     }
+    // }
     
     [GlobalCleanup]
     public void Dispose()

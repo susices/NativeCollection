@@ -9,18 +9,19 @@ namespace NativeCollection.UnsafeType;
 public unsafe partial struct SortedSet<T> : ICollection<T>, IDisposable where T : unmanaged, IEquatable<T>,IComparable<T>
 {
     private SortedSet<T>* _self;
-    //private readonly IComparer<T> comparer => Comparer<T>.Default;
     private int _count;
     private Node* _root;
+    private NativePool<Node>* _nodePool;
     private int _version;
-
-    public static SortedSet<T>* Create()
+    private const int _defaultNodePoolSize = 200;
+    public static SortedSet<T>* Create(int nodePoolSize = _defaultNodePoolSize)
     {
         var sortedSet = (SortedSet<T>*)NativeMemoryHelper.Alloc((UIntPtr)Unsafe.SizeOf<SortedSet<T>>());
         sortedSet->_self = sortedSet;
         sortedSet->_root = null;
         sortedSet->_count = 0;
         sortedSet->_version = 0;
+        sortedSet->_nodePool = NativePool<Node>.Create(nodePoolSize);
         return sortedSet;
     }
 
@@ -103,6 +104,8 @@ public unsafe partial struct SortedSet<T> : ICollection<T>, IDisposable where T 
         _root = null;
         _count = 0;
         ++_version;
+
+        _nodePool->Clear();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -124,6 +127,12 @@ public unsafe partial struct SortedSet<T> : ICollection<T>, IDisposable where T 
     public void Dispose()
     {
         Clear();
+        if (_nodePool!=null)
+        {
+            _nodePool->Dispose();
+            NativeMemoryHelper.Free(_nodePool);
+            GC.RemoveMemoryPressure(Unsafe.SizeOf<NativePool<Node>>());
+        }
         _version = 0;
     }
 
@@ -222,12 +231,12 @@ public unsafe partial struct SortedSet<T> : ICollection<T>, IDisposable where T 
         return AddIfNotPresent(item);
     }
 
-    internal bool AddIfNotPresent(T item)
+    internal bool AddIfNotPresent(in T item)
     {
         if (_root == null)
         {
             // The tree is empty and this is the first item.
-            _root = Node.Create(item, NodeColor.Black);
+            _root = Node.AllocFromPool(item, NodeColor.Black,_nodePool);
             _count = 1;
             _version++;
             return true;
@@ -273,7 +282,7 @@ public unsafe partial struct SortedSet<T> : ICollection<T>, IDisposable where T 
 
         Debug.Assert(parent != null);
         // We're ready to insert the new node.
-        var node = Node.Create(item, NodeColor.Red);
+        var node = Node.AllocFromPool(item, NodeColor.Red,_nodePool);
         if (order > 0)
             parent->Right = node;
         else

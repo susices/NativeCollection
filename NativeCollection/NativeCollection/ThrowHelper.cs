@@ -40,7 +40,13 @@ internal static class ThrowHelper
     {
         throw new ArgumentOutOfRangeException("SmallCapacity");
     }
-    
+
+
+    [DoesNotReturn]
+    public static void ListIndexOutOfRange()
+    {
+        throw new ArgumentOutOfRangeException("ListIndexOutOfRange");
+    }
     
     
     [DoesNotReturn]

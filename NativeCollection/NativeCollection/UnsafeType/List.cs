@@ -5,7 +5,7 @@ using System.Text;
 
 namespace NativeCollection.UnsafeType;
 
-public unsafe struct List<T> : ICollection<T>, IDisposable where T : unmanaged, IEquatable<T>
+public unsafe struct List<T> : ICollection<T>, IDisposable, IPool where T : unmanaged, IEquatable<T>
 {
     private List<T>* self;
 
@@ -32,7 +32,7 @@ public unsafe struct List<T> : ICollection<T>, IDisposable where T : unmanaged, 
     }
 
     
-    public T this[int index]
+    public ref T this[int index]
     {
         get
         {
@@ -40,7 +40,7 @@ public unsafe struct List<T> : ICollection<T>, IDisposable where T : unmanaged, 
             {
                 ThrowHelper.IndexMustBeLessException();
             }
-            return *(_items + index);
+            return ref *(_items + index);
         }
     }
 
@@ -135,6 +135,79 @@ public unsafe struct List<T> : ICollection<T>, IDisposable where T : unmanaged, 
     {
         return IndexOf(item) >= 0;
     }
+    
+    public void Insert(int index, T item)
+    {
+        // Note that insertions at the end are legal.
+        if ((uint)index > (uint)Count)
+        {
+            ThrowHelper.IndexMustBeLessException();
+        }
+        if (Count == _arrayLength) Grow(Count + 1);
+        if (index < Count)
+        {
+            Unsafe.CopyBlockUnaligned(_items+index+1,_items+index,(uint)(Count-index));
+        }
+        _items[index] = item;
+        Count++;
+    }
+
+    public void AddRange(Span<T> collection)
+    {
+        InsertRange(Count, collection);
+    }
+    
+    public void InsertRange(int index, Span<T> collection)
+    {
+        
+        if ((uint)index > (uint)Count)
+        {
+            ThrowHelper.ListIndexOutOfRange();
+        }
+        
+        int count = collection.Length;
+        if (count > 0)
+        {
+            if (_arrayLength - Count < count)
+            {
+                Grow(Count + count);
+            }
+            if (index < Count)
+            {
+                Unsafe.CopyBlockUnaligned(_items+index+count,_items+index,(uint)(Count-index));
+            }
+            
+            collection.CopyTo(new Span<T>(_items,index));
+            Count += count;
+        }
+        
+    }
+
+    public void RemoveRange(int index, int count)
+    {
+        if (index < 0)
+        {
+            ThrowHelper.ListIndexOutOfRange();
+        }
+
+        if (count < 0)
+        {
+            ThrowHelper.ListIndexOutOfRange();
+        }
+
+        if (Count - index < count)
+            ThrowHelper.ListIndexOutOfRange();
+
+        if (count > 0)
+        {
+            Count -= count;
+            if (index < Count)
+            {
+                Unsafe.CopyBlockUnaligned(_items+index,_items+index+count,(uint)(Count-index));
+            }
+        }
+    }
+    
 
     public void FillDefaultValue()
     {
@@ -271,5 +344,15 @@ public unsafe struct List<T> : ICollection<T>, IDisposable where T : unmanaged, 
         public void Dispose()
         {
         }
+    }
+
+    public void OnReturnToPool()
+    {
+        Clear();
+    }
+
+    public void OnGetFromPool()
+    {
+        
     }
 }

@@ -2,7 +2,7 @@ using System.Runtime.CompilerServices;
 
 namespace NativeCollection;
 
-public unsafe class Stack<T> : INativeCollectionClass where T : unmanaged, IEquatable<T>
+public unsafe class Stack<T> : INativeCollectionClass where T : unmanaged
 {
     private const int _defaultCapacity = 10;
     private UnsafeType.Stack<T>* _stack;

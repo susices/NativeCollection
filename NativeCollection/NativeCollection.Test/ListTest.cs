@@ -151,6 +151,23 @@ public class ListTest
     }
 
     [Fact]
+    public void RefIndex()
+    {
+        List<int> nativeList = new List<int>();
+        nativeList.Add(123);
+        nativeList.Add(456);
+        nativeList[0] = 789;
+        nativeList[0].Should().Be(789);
+
+        ref var value = ref nativeList[0];
+        value = 999;
+        nativeList[0].Should().Be(999);
+
+        nativeList[0] = 0;
+        value.Should().Be(0);
+    }
+
+    [Fact]
     public void NativeCollectionClass()
     {
         List<int> nativeList = new List<int>();
