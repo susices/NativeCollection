@@ -8,76 +8,76 @@ namespace Benchmark.Benchmarks;
 [CategoriesColumn]
 public class BenchmarkMultiMap
 {
-    [Params(10000,100000)]
+    [Params(10000,100000,1000000)]
     public int KeyCount { get; set; }
     public int ValueCount { get; set; }
     private System.Collections.Generic.List<int> input;
     private NativeCollection.MultiMap<int, int> nativeMultiMap;
     private MultiMap<int, int> managedMultiMap;
     
-    [GlobalSetup(Targets = new []{nameof(NativeAddAllAndRemoveAll),nameof(ManagedAddAllAndRemoveAll)})]
-    public void InitAddAllAndRemoveAll()
-    {
-        nativeMultiMap = new NativeCollection.MultiMap<int, int>(1000);
-        managedMultiMap = new MultiMap<int, int>(1000);
-        ValueCount = 5;
-        input = new System.Collections.Generic.List<int>();
-        for (int i = 0; i < KeyCount; i++)
-        {
-            input.Add(Random.Shared.Next());
-        }
-    }
-
-    [BenchmarkCategory("AddAllAndRemoveAll")]
-    [Benchmark]
-    public void NativeAddAllAndRemoveAll()
-    {
-        for (int j = 0; j < 10; j++)
-        {
-            foreach (var key in input)
-            {
-                for (int i = 0; i < ValueCount; i++)
-                {
-                    nativeMultiMap.Add(key,i);
-                }
-            }
-
-            foreach (var key in input)
-            {
-                for (int i = 0; i < ValueCount; i++)
-                {
-                    nativeMultiMap.Remove(key,i);
-                }
-            }
-            nativeMultiMap.Clear();
-        }
-    }
-    
-    [BenchmarkCategory("AddAllAndRemoveAll")]
-    [Benchmark(Baseline = true)]
-    public void ManagedAddAllAndRemoveAll()
-    {
-
-        for (int j = 0; j < 10; j++)
-        {
-            foreach (var key in input)
-            {
-                for (int i = 0; i < ValueCount; i++)
-                {
-                    managedMultiMap.Add(key,i);
-                }
-            }
-
-            foreach (var key in input)
-            {
-                for (int i = 0; i < ValueCount; i++)
-                {
-                    managedMultiMap.Remove(key,i);
-                }
-            }
-            managedMultiMap.Clear();
-        }
-    }
+    // [GlobalSetup(Targets = new []{nameof(NativeAddAllAndRemoveAll),nameof(ManagedAddAllAndRemoveAll)})]
+    // public void InitAddAllAndRemoveAll()
+    // {
+    //     nativeMultiMap = new NativeCollection.MultiMap<int, int>(1000);
+    //     managedMultiMap = new MultiMap<int, int>(1000);
+    //     ValueCount = 5;
+    //     input = new System.Collections.Generic.List<int>();
+    //     for (int i = 0; i < KeyCount; i++)
+    //     {
+    //         input.Add(Random.Shared.Next());
+    //     }
+    // }
+    //
+    // [BenchmarkCategory("AddAllAndRemoveAll")]
+    // [Benchmark]
+    // public void NativeAddAllAndRemoveAll()
+    // {
+    //     for (int j = 0; j < 10; j++)
+    //     {
+    //         foreach (var key in input)
+    //         {
+    //             for (int i = 0; i < ValueCount; i++)
+    //             {
+    //                 nativeMultiMap.Add(key,i);
+    //             }
+    //         }
+    //
+    //         foreach (var key in input)
+    //         {
+    //             for (int i = 0; i < ValueCount; i++)
+    //             {
+    //                 nativeMultiMap.Remove(key,i);
+    //             }
+    //         }
+    //         nativeMultiMap.Clear();
+    //     }
+    // }
+    //
+    // [BenchmarkCategory("AddAllAndRemoveAll")]
+    // [Benchmark(Baseline = true)]
+    // public void ManagedAddAllAndRemoveAll()
+    // {
+    //
+    //     for (int j = 0; j < 10; j++)
+    //     {
+    //         foreach (var key in input)
+    //         {
+    //             for (int i = 0; i < ValueCount; i++)
+    //             {
+    //                 managedMultiMap.Add(key,i);
+    //             }
+    //         }
+    //
+    //         foreach (var key in input)
+    //         {
+    //             for (int i = 0; i < ValueCount; i++)
+    //             {
+    //                 managedMultiMap.Remove(key,i);
+    //             }
+    //         }
+    //         managedMultiMap.Clear();
+    //     }
+    // }
 
     [GlobalSetup(Targets = new []{nameof(NativeAddAndRemove),nameof(ManagedAddAndRemove)})]
     public void InitAddAndRemove()
@@ -110,15 +110,18 @@ public class BenchmarkMultiMap
     [Benchmark]
     public void NativeAddAndRemove()
     {
-        for (int i = 0; i < 1000; i++)
+        for (int m = 0; m < 100; m++)
         {
-            for (int j = 0; j < 10; j++)
+            for (int i = 0; i < 100; i++)
             {
-                nativeMultiMap.Add(i,j);
-            }
-            for (int j = 0; j < 10; j++)
-            {
-                nativeMultiMap.Remove(i,j);
+                for (int j = 0; j < 10; j++)
+                {
+                    nativeMultiMap.Add(i,j);
+                }
+                for (int j = 0; j < 10; j++)
+                {
+                    nativeMultiMap.Remove(i,j);
+                }
             }
         }
     }
@@ -127,15 +130,18 @@ public class BenchmarkMultiMap
     [Benchmark(Baseline = true)]
     public void ManagedAddAndRemove()
     {
-        for (int i = 0; i < 1000; i++)
+        for (int m = 0; m < 100; m++)
         {
-            for (int j = 0; j < 10; j++)
+            for (int i = 0; i < 100; i++)
             {
-                managedMultiMap.Add(i,j);
-            }
-            for (int j = 0; j < 10; j++)
-            {
-                managedMultiMap.Remove(i,j);
+                for (int j = 0; j < 10; j++)
+                {
+                    managedMultiMap.Add(i,j);
+                }
+                for (int j = 0; j < 10; j++)
+                {
+                    managedMultiMap.Remove(i,j);
+                }
             }
         }
     }
@@ -172,7 +178,7 @@ public class BenchmarkMultiMap
     // [Benchmark]
     // public void NativeEnumerate()
     // {
-    //     var enumerator = nativeMultiMap.GetEnumerator();
+    //     using var enumerator = nativeMultiMap.GetEnumerator();
     //     while (enumerator.MoveNext())
     //     {
     //         var pair = enumerator.Current;
@@ -189,7 +195,7 @@ public class BenchmarkMultiMap
     // [Benchmark(Baseline = true)]
     // public void ManagedEnumerate()
     // {
-    //     var enumerator = managedMultiMap.GetEnumerator();
+    //     using var enumerator = managedMultiMap.GetEnumerator();
     //     while (enumerator.MoveNext())
     //     {
     //         var pair = enumerator.Current;

@@ -399,8 +399,7 @@ namespace NativeCollection.UnsafeType
         {
             ReplaceNode(match, parentOfMatch!, parent!, grandParent!);
             --_count;
-            NativeMemoryHelper.Free(match);
-            GC.RemoveMemoryPressure(Unsafe.SizeOf<Node>());
+            _nodePool->Return(match);
         }
 
         if (_root != null) _root->ColorBlack();

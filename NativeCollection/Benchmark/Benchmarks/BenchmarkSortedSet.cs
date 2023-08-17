@@ -8,7 +8,7 @@ namespace Benchmark.Benchmarks;
 [CategoriesColumn]
 public class BenchmarkSortedSet
 {
-    [Params(1000,10000,100000)]
+    [Params(10000,100000,1000000)]
     public int Count { get; set; }
     private List<int> input;
     private NativeCollection.SortedSet<int> nativesSortedSet;
@@ -18,12 +18,20 @@ public class BenchmarkSortedSet
     [GlobalSetup(Targets = new []{nameof(NativeAddRemove),nameof(ManagedAddRemove)})]
     public void InitAddRemove()
     {
-        nativesSortedSet = new NativeCollection.SortedSet<int>();
+        nativesSortedSet = new NativeCollection.SortedSet<int>(1000);
         managedSortedSet = new SortedSet<int>();
         input = new List<int>();
         for (int i = 0; i < Count; i++)
         {
-            input.Add(Random.Shared.Next());
+            input.Add(Random.Shared.Next(Count));
+        }
+        foreach (var value in input)
+        {
+            nativesSortedSet.Add(value);
+        }
+        foreach (var value in input)
+        {
+            managedSortedSet.Add(value);
         }
     }
 
@@ -31,13 +39,17 @@ public class BenchmarkSortedSet
     [Benchmark]
     public void NativeAddRemove()
     {
-        foreach (var value in input)
+        for (int i = 0; i < 100; i++)
         {
-            nativesSortedSet.Add(value);
-        }
-        foreach (var value in input)
-        {
-            nativesSortedSet.Remove(value);
+            for (int j = Count; j < Count+1000; j++)
+            {
+                nativesSortedSet.Add(j);
+            }
+            
+            for (int j = Count; j < Count+1000; j++)
+            {
+                nativesSortedSet.Remove(j);
+            }
         }
     }
     
@@ -45,16 +57,19 @@ public class BenchmarkSortedSet
     [Benchmark(Baseline = true)]
     public void ManagedAddRemove()
     {
-        foreach (var value in input)
+        for (int i = 0; i < 100; i++)
         {
-            managedSortedSet.Add(value);
-        }
-        foreach (var value in input)
-        {
-            managedSortedSet.Remove(value);
+            for (int j = Count; j < Count+1000; j++)
+            {
+                managedSortedSet.Add(j);
+            }
+            
+            for (int j = Count; j < Count+1000; j++)
+            {
+                managedSortedSet.Remove(j);
+            }
         }
     }
-    
     
     [GlobalSetup(Targets = new []{nameof(NativeEnumerate),nameof(ManagedEnumerate)})]
     public void InitEnumerate()
