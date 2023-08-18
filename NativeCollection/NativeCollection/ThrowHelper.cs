@@ -73,6 +73,12 @@ namespace NativeCollection
         {
             throw new InvalidOperationException("EnumOpCantHappen");
         }
+
+        [DoesNotReturn]
+        public static void SortedSetVersionChanged()
+        {
+            throw new InvalidOperationException("_version != _tree.version");
+        }
     }
 }
 

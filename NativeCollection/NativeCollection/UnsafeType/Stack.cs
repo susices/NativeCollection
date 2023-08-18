@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 
 namespace NativeCollection.UnsafeType
 {
-    public unsafe struct Stack<T> : IDisposable where T : unmanaged
+    public unsafe struct Stack<T> : IDisposable, IPool where T : unmanaged
 {
     private T* _array;
     private int _version;
@@ -104,6 +104,16 @@ namespace NativeCollection.UnsafeType
     {
         NativeMemoryHelper.Free(_array);
         GC.RemoveMemoryPressure(ArrayLength * System.Runtime.CompilerServices.Unsafe.SizeOf<T>());
+    }
+
+    public void OnReturnToPool()
+    {
+        Clear();
+    }
+
+    public void OnGetFromPool()
+    {
+        
     }
 }
 }

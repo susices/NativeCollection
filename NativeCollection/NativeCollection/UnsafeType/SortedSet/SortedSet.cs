@@ -14,6 +14,7 @@ namespace NativeCollection.UnsafeType
     private int _count;
     private Node* _root;
     private NativePool<Node>* _nodePool;
+    private NativePool<Stack<IntPtr>>* _stackPool;
     private int _version;
     private const int _defaultNodePoolSize = 200;
     public static SortedSet<T>* Create(int nodePoolSize = _defaultNodePoolSize)
@@ -24,6 +25,7 @@ namespace NativeCollection.UnsafeType
         sortedSet->_count = 0;
         sortedSet->_version = 0;
         sortedSet->_nodePool = NativePool<Node>.Create(nodePoolSize);
+        sortedSet->_stackPool = NativePool<Stack<IntPtr>>.Create(2);
         return sortedSet;
     }
 
@@ -108,6 +110,7 @@ namespace NativeCollection.UnsafeType
         ++_version;
 
         _nodePool->Clear();
+        _stackPool->Clear();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -134,6 +137,12 @@ namespace NativeCollection.UnsafeType
             _nodePool->Dispose();
             NativeMemoryHelper.Free(_nodePool);
             GC.RemoveMemoryPressure(Unsafe.SizeOf<NativePool<Node>>());
+        }
+        if (_stackPool!=null)
+        {
+            _stackPool->Dispose();
+            NativeMemoryHelper.Free(_stackPool);
+            GC.RemoveMemoryPressure(Unsafe.SizeOf<NativePool<Stack<IntPtr>>>());
         }
         _version = 0;
     }
@@ -558,7 +567,11 @@ namespace NativeCollection.UnsafeType
 
             // 2 log(n + 1) is the maximum height.
 
-            _stack = UnsafeType.Stack<IntPtr>.Create(2 * Log2(set->TotalCount() + 1));
+            _stack = set->_stackPool->Alloc();
+            if (_stack==null)
+            {
+                _stack = UnsafeType.Stack<IntPtr>.Create(2 * Log2(set->TotalCount() + 1));
+            }
             CurrentPointer = null;
             _reverse = reverse;
             Initialize();
@@ -592,9 +605,12 @@ namespace NativeCollection.UnsafeType
         public bool MoveNext()
         {
             // Make sure that the underlying subset has not been changed since
-            _tree->VersionCheck();
+            //_tree->VersionCheck();
 
-            if (_version != _tree->_version) throw new InvalidOperationException("_version != _tree.version");
+            if (_version != _tree->_version)
+            {
+                ThrowHelper.SortedSetVersionChanged();
+            }
 
             if (_stack->Count == 0)
             {
@@ -630,9 +646,11 @@ namespace NativeCollection.UnsafeType
         public void Dispose()
         {
             //Console.WriteLine("Enumerator Dispose");
-            _stack->Dispose();
-            NativeMemoryHelper.Free(_stack);
-            GC.RemoveMemoryPressure(Unsafe.SizeOf<NativeCollection.Stack<IntPtr>>());
+            // _stack->Dispose();
+            //
+            // NativeMemoryHelper.Free(_stack);
+            // GC.RemoveMemoryPressure(Unsafe.SizeOf<NativeCollection.Stack<IntPtr>>());
+            _tree->_stackPool->Return(_stack);
         }
 
         public T Current
