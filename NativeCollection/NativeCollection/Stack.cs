@@ -7,10 +7,11 @@ namespace NativeCollection
     {
         private const int _defaultCapacity = 10;
         private UnsafeType.Stack<T>* _stack;
-    
+        private int _capacity;
         public Stack(int initialCapacity = _defaultCapacity)
         {
-            _stack = UnsafeType.Stack<T>.Create(initialCapacity);
+            _capacity = initialCapacity;
+            _stack = UnsafeType.Stack<T>.Create(_capacity);
             IsDisposed = false;
         }
     
@@ -76,7 +77,7 @@ namespace NativeCollection
         {
             if (IsDisposed)
             {
-                _stack = UnsafeType.Stack<T>.Create(_defaultCapacity);
+                _stack = UnsafeType.Stack<T>.Create(_capacity);
                 IsDisposed = false;
             }
         }

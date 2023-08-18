@@ -6,10 +6,12 @@ namespace NativeCollection
     public unsafe class Queue<T> : INativeCollectionClass where T : unmanaged
     {
         private UnsafeType.Queue<T>* _queue;
-    
+        private const int _defaultCapacity = 10;
+        private int _capacity;
         public Queue(int capacity = 10)
         {
-            _queue = UnsafeType.Queue<T>.Create(capacity);
+            _capacity = capacity;
+            _queue = UnsafeType.Queue<T>.Create(_capacity);
             IsDisposed = false;
         }
     
@@ -77,7 +79,7 @@ namespace NativeCollection
         {
             if (IsDisposed)
             {
-                _queue = UnsafeType.Queue<T>.Create();
+                _queue = UnsafeType.Queue<T>.Create(_capacity);
                 IsDisposed = false;
             }
         }

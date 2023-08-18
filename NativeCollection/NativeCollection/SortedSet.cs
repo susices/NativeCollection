@@ -9,9 +9,11 @@ namespace NativeCollection
 {
     private UnsafeType.SortedSet<T>* _sortedSet;
     private const int _defaultNodePoolSize = 200;
+    private int _poolSize;
     public SortedSet(int nodePoolSize = _defaultNodePoolSize)
     {
-        _sortedSet = UnsafeType.SortedSet<T>.Create(nodePoolSize);
+        _poolSize = nodePoolSize;
+        _sortedSet = UnsafeType.SortedSet<T>.Create(_poolSize);
         IsDisposed = false;
     }
     IEnumerator<T> IEnumerable<T>.GetEnumerator()
@@ -90,7 +92,7 @@ namespace NativeCollection
     {
         if (IsDisposed)
         {
-            _sortedSet = UnsafeType.SortedSet<T>.Create(_defaultNodePoolSize);
+            _sortedSet = UnsafeType.SortedSet<T>.Create(_poolSize);
             IsDisposed = false;
         }
     }

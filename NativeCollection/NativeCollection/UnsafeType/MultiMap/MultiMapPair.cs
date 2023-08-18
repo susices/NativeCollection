@@ -7,7 +7,7 @@ namespace NativeCollection.UnsafeType
         where T : unmanaged, IEquatable<T>, IComparable<T> where K : unmanaged, IEquatable<K>
     {
         private UnsafeType.List<K>* _value;
-    
+        
         public T Key { get; private set; }
     
         public ref UnsafeType.List<K> Value => ref Unsafe.AsRef<UnsafeType.List<K>>(_value);

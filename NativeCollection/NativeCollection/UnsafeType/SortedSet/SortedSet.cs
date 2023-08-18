@@ -16,7 +16,7 @@ namespace NativeCollection.UnsafeType
     private NativePool<Node>* _nodePool;
     private NativePool<Stack<IntPtr>>* _stackPool;
     private int _version;
-    private const int _defaultNodePoolSize = 200;
+    private const int _defaultNodePoolSize = 50;
     public static SortedSet<T>* Create(int nodePoolSize = _defaultNodePoolSize)
     {
         var sortedSet = (SortedSet<T>*)NativeMemoryHelper.Alloc((UIntPtr)Unsafe.SizeOf<SortedSet<T>>());

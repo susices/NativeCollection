@@ -3,8 +3,9 @@ Native Collection library in c#
 
 目标是实现一个常用集合的0gc高性能非托管库
 
-已实现Stack Queue HashSet SortedSet list multimap.
+已实现Stack Queue HashSet SortedSet list map multimap.
 
+注: 本项目容器代码为基于.Net标准库容器的移植 ,api进行了一定的简化.
 
 下表是Multimap对比托管版本实现的性能测试 各项操作性能均快于托管版本一倍以上
 
