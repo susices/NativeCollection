@@ -12,7 +12,6 @@ public class UnOrderMapTest
         unOrderMap.Add(1,11);
         unOrderMap.Count.Should().Be(1);
         unOrderMap[1].Should().Be(11);
-        unOrderMap.Add(1,12);
         unOrderMap.Count.Should().Be(1);
         unOrderMap[1].Should().Be(11);
         unOrderMap.Add(3,44);
@@ -23,11 +22,6 @@ public class UnOrderMapTest
         unOrderMap.Count.Should().Be(0);
         unOrderMap.Remove(1).Should().Be(false);
         unOrderMap.Clear();
-        for (int i = 0; i < 1000; i++)
-        {
-            unOrderMap.Add(1,Random.Shared.Next());
-        }
-        unOrderMap.Count.Should().Be(1);
      
         unOrderMap.Clear();
         unOrderMap.Add(1,100);

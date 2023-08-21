@@ -9,7 +9,7 @@ namespace NativeCollection
     public unsafe class UnOrderMap<T, K> : IEnumerable<MapPair<T, K>>, INativeCollectionClass
         where T : unmanaged, IEquatable<T>, IComparable<T> where K : unmanaged, IEquatable<K>
     {
-        private int _capacity;
+private int _capacity;
         private UnsafeType.UnOrderMap<T, K>* _unOrderMap;
 
         public UnOrderMap(int initCapacity = 0)
@@ -76,7 +76,7 @@ namespace NativeCollection
         }
         
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public UnsafeType.HashSet<MapPair<T, K>>.Enumerator GetEnumerator()
+        public UnsafeType.UnOrderMap<T,K>.Enumerator GetEnumerator()
         {
             return _unOrderMap->GetEnumerator();
         }

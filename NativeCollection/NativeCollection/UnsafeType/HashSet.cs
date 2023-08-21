@@ -6,8 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace NativeCollection.UnsafeType
-{
-    public unsafe struct HashSet<T> : ICollection<T>, IDisposable where T : unmanaged, IEquatable<T>
+{public unsafe struct HashSet<T> : ICollection<T>, IDisposable where T : unmanaged, IEquatable<T>
 {
     /// <summary>Cutoff point for stackallocs. This corresponds to the number of ints.</summary>
     private const int StackAllocThreshold = 100;
@@ -254,7 +253,7 @@ namespace NativeCollection.UnsafeType
             // Console.WriteLine($"i:{i}");
             ref Entry entry = ref _entries[i];
             // Console.WriteLine($"entry.HashCode:{entry.HashCode} hashCode:{hashCode} Equals:{comparer.Equals(entry.Value, value)}");
-            if (entry.HashCode == hashCode && value.Equals(value))
+            if (entry.HashCode == hashCode && entry.Value.Equals(value))
             {
                 location = i;
                 return false;

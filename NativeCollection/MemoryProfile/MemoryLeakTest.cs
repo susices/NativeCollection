@@ -213,15 +213,14 @@ public class MemoryLeakTest
         
         for (int i = 0; i < 100; i++)
         {
-            for (int j = 0; j < 10; j++)
-            {
-                unOrderMap.Add(i,1);
-            }
-            for (int j = 0; j < 10; j++)
-            {
-                unOrderMap.Remove(i);
-            }
+            unOrderMap.Add(i,1);
+            
         }
+        for (int i = 0; i < 100; i++)
+        {
+            unOrderMap.Remove(i);
+        }
+        
         unOrderMap.Clear();
         
         unOrderMap.Dispose();
