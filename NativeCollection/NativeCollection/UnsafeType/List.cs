@@ -61,7 +61,7 @@ namespace NativeCollection.UnsafeType
                     if (Count > 0)
                         Unsafe.CopyBlockUnaligned(newArray, _items, (uint)(_arrayLength * Unsafe.SizeOf<T>()));
                     NativeMemoryHelper.Free(_items);
-                    GC.RemoveMemoryPressure(Unsafe.SizeOf<T>() * _arrayLength);
+                    NativeMemoryHelper.RemoveNativeMemoryByte(Unsafe.SizeOf<T>() * _arrayLength);
                     _items = newArray;
                     _arrayLength = value;
                 }
@@ -277,7 +277,7 @@ namespace NativeCollection.UnsafeType
     public void Dispose()
     {
         NativeMemoryHelper.Free(_items);
-        GC.RemoveMemoryPressure(_arrayLength * Unsafe.SizeOf<T>());
+        NativeMemoryHelper.RemoveNativeMemoryByte(_arrayLength * Unsafe.SizeOf<T>());
     }
 
 

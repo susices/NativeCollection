@@ -16,7 +16,7 @@ public class BenchmarkMap
     private SortedDictionary<int, int> managedMap;
     
     [GlobalSetup(Targets = new []{nameof(NativeAddAndRemove),nameof(ManagedAddAndRemove)})]
-    public void InitAddAndRemove()
+    public void InitAddAndRemove()  
     {
         nativeMap = new NativeCollection.Map<int, int>(1000);
         managedMap = new SortedCollection<int, int>();

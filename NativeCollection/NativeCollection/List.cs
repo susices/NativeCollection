@@ -96,7 +96,7 @@ namespace NativeCollection
         {
             _list->Dispose();
             NativeMemoryHelper.Free(_list);
-            GC.RemoveMemoryPressure(Unsafe.SizeOf<UnsafeType.List<T>>());
+            NativeMemoryHelper.RemoveNativeMemoryByte(Unsafe.SizeOf<UnsafeType.List<T>>());
             IsDisposed = true;
         }
     }

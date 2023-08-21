@@ -27,7 +27,7 @@ namespace NativeCollection
             {
                 _stack->Dispose();
                 NativeMemoryHelper.Free(_stack);
-                GC.RemoveMemoryPressure(Unsafe.SizeOf<UnsafeType.Stack<T>>());
+                NativeMemoryHelper.RemoveNativeMemoryByte(Unsafe.SizeOf<UnsafeType.Stack<T>>());
                 IsDisposed = true;
             }
         }

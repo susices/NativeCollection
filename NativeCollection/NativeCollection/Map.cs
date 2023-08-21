@@ -45,7 +45,7 @@ public unsafe class Map<T, K> : IEnumerable<MapPair<T, K>>, INativeCollectionCla
         {
             _map->Dispose();
             NativeMemoryHelper.Free(_map);
-            GC.RemoveMemoryPressure(Unsafe.SizeOf<UnsafeType.Map<T, K>>());
+            NativeMemoryHelper.RemoveNativeMemoryByte(Unsafe.SizeOf<UnsafeType.Map<T, K>>());
             IsDisposed = true;
         }
     }

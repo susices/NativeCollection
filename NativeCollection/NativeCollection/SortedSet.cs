@@ -83,7 +83,7 @@ namespace NativeCollection
         {
             _sortedSet->Dispose();
             NativeMemoryHelper.Free(_sortedSet);
-            GC.RemoveMemoryPressure(Unsafe.SizeOf<UnsafeType.SortedSet<T>>());
+            NativeMemoryHelper.RemoveNativeMemoryByte(Unsafe.SizeOf<UnsafeType.SortedSet<T>>());
             IsDisposed = true;
         }
     }

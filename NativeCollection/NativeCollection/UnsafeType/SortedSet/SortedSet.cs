@@ -98,12 +98,12 @@ namespace NativeCollection.UnsafeType
             if (enumerator.CurrentPointer != null)
             {
                 NativeMemoryHelper.Free(enumerator.CurrentPointer);
-                GC.RemoveMemoryPressure(Unsafe.SizeOf<Node>());
+                NativeMemoryHelper.RemoveNativeMemoryByte(Unsafe.SizeOf<Node>());
                 nodeCount++;
             }
         } while (enumerator.MoveNext());
 
-        if (nodeCount != 0) GC.RemoveMemoryPressure(nodeCount * Unsafe.SizeOf<Node>());
+        if (nodeCount != 0) NativeMemoryHelper.RemoveNativeMemoryByte(nodeCount * Unsafe.SizeOf<Node>());
 
         _root = null;
         _count = 0;
@@ -136,13 +136,13 @@ namespace NativeCollection.UnsafeType
         {
             _nodePool->Dispose();
             NativeMemoryHelper.Free(_nodePool);
-            GC.RemoveMemoryPressure(Unsafe.SizeOf<NativePool<Node>>());
+            NativeMemoryHelper.RemoveNativeMemoryByte(Unsafe.SizeOf<NativePool<Node>>());
         }
         if (_stackPool!=null)
         {
             _stackPool->Dispose();
             NativeMemoryHelper.Free(_stackPool);
-            GC.RemoveMemoryPressure(Unsafe.SizeOf<NativePool<Stack<IntPtr>>>());
+            NativeMemoryHelper.RemoveNativeMemoryByte(Unsafe.SizeOf<NativePool<Stack<IntPtr>>>());
         }
         _version = 0;
     }
@@ -214,7 +214,7 @@ namespace NativeCollection.UnsafeType
         }
         stack->Dispose();
         NativeMemoryHelper.Free(stack);
-        GC.RemoveMemoryPressure(Unsafe.SizeOf<UnsafeType.Stack<IntPtr>>());
+        NativeMemoryHelper.RemoveNativeMemoryByte(Unsafe.SizeOf<UnsafeType.Stack<IntPtr>>());
         return true;
     }
 

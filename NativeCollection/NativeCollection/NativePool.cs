@@ -38,7 +38,7 @@ namespace NativeCollection
             {
                 _nativePool->Dispose();
                 NativeMemoryHelper.Free(_nativePool);
-                GC.RemoveMemoryPressure(Unsafe.SizeOf<UnsafeType.NativePool<T>>());
+                NativeMemoryHelper.RemoveNativeMemoryByte(Unsafe.SizeOf<UnsafeType.NativePool<T>>());
                 IsDisposed = true;
             }
         }

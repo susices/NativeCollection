@@ -91,7 +91,7 @@ namespace NativeCollection.UnsafeType
             var newArray = (T*)NativeMemoryHelper.Alloc((UIntPtr)(ArrayLength * 2), (UIntPtr)System.Runtime.CompilerServices.Unsafe.SizeOf<T>());
             System.Runtime.CompilerServices.Unsafe.CopyBlockUnaligned(newArray, _array, (uint)(Count * System.Runtime.CompilerServices.Unsafe.SizeOf<T>()));
             NativeMemoryHelper.Free(_array);
-            GC.RemoveMemoryPressure(ArrayLength * System.Runtime.CompilerServices.Unsafe.SizeOf<T>());
+            NativeMemoryHelper.RemoveNativeMemoryByte(ArrayLength * System.Runtime.CompilerServices.Unsafe.SizeOf<T>());
             _array = newArray;
             ArrayLength = ArrayLength * 2;
         }
@@ -103,7 +103,7 @@ namespace NativeCollection.UnsafeType
     public void Dispose()
     {
         NativeMemoryHelper.Free(_array);
-        GC.RemoveMemoryPressure(ArrayLength * System.Runtime.CompilerServices.Unsafe.SizeOf<T>());
+        NativeMemoryHelper.RemoveNativeMemoryByte(ArrayLength * System.Runtime.CompilerServices.Unsafe.SizeOf<T>());
     }
 
     public void OnReturnToPool()

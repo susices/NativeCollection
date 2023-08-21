@@ -10,7 +10,6 @@ namespace NativeCollection.UnsafeType
 {
     private UnsafeType.SortedSet<MapPair<T, K>>* _sortedSet;
     
-
     public static Map<T, K>* Create(int maxPoolSize)
     {
         Map<T, K>* map = (Map<T, K>*)NativeMemoryHelper.Alloc((UIntPtr)Unsafe.SizeOf<Map<T, K>>());
@@ -106,7 +105,7 @@ namespace NativeCollection.UnsafeType
         {
             _sortedSet->Dispose();
             NativeMemoryHelper.Free(_sortedSet);
-            GC.RemoveMemoryPressure(Unsafe.SizeOf<UnsafeType.SortedSet<MapPair<T, K>>>());
+            NativeMemoryHelper.RemoveNativeMemoryByte(Unsafe.SizeOf<UnsafeType.SortedSet<MapPair<T, K>>>());
         }
     }
 }

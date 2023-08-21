@@ -5,10 +5,28 @@
         <TargetFramework>net7.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+      <DefineConstants>TRACE;MEMORY_PROFILE</DefineConstants>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+      <DefineConstants>TRACE;MEMORY_PROFILE</DefineConstants>
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\NativeCollection\NativeCollection.csproj" />
+        <PackageReference Include="FluentAssertions" Version="6.11.0" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.11.0" />
+        <PackageReference Include="xunit" Version="2.5.0" />
     </ItemGroup>
+    
+    <ItemGroup>
+        <Compile Include="..\NativeCollection\\**\*.cs"  Exclude="..\NativeCollection\obj\**">
+            <Link>NativeCollection/%(RecursiveDir)%(FileName)%(Extension)</Link>
+        </Compile>
+    </ItemGroup>
+
 
 </Project>

@@ -110,14 +110,14 @@ namespace NativeCollection.UnsafeType
         {
             _sortedSet->Dispose();
             NativeMemoryHelper.Free(_sortedSet);
-            GC.RemoveMemoryPressure(Unsafe.SizeOf<UnsafeType.SortedSet<MultiMapPair<T, K>>>());
+            NativeMemoryHelper.RemoveNativeMemoryByte(Unsafe.SizeOf<UnsafeType.SortedSet<MultiMapPair<T, K>>>());
         }
 
         if (_listPool!=null)
         {
             _listPool->Dispose();
             NativeMemoryHelper.Free(_listPool);
-            GC.RemoveMemoryPressure(Unsafe.SizeOf<NativePool<List<K>>>());
+            NativeMemoryHelper.RemoveNativeMemoryByte(Unsafe.SizeOf<NativePool<List<K>>>());
         }
     }
 }

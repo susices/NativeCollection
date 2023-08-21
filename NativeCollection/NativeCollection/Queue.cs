@@ -27,7 +27,7 @@ namespace NativeCollection
             {
                 _queue->Dispose();
                 NativeMemoryHelper.Free(_queue);
-                GC.RemoveMemoryPressure(Unsafe.SizeOf<UnsafeType.Queue<T>>());
+                NativeMemoryHelper.RemoveNativeMemoryByte(Unsafe.SizeOf<UnsafeType.Queue<T>>());
                 IsDisposed = true;
             }
         }

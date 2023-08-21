@@ -157,10 +157,10 @@ namespace NativeCollection.UnsafeType
     public void Dispose()
     {
         NativeMemoryHelper.Free(_buckets);
-        GC.RemoveMemoryPressure(Unsafe.SizeOf<int>()*_bucketLength);
+        NativeMemoryHelper.RemoveNativeMemoryByte(Unsafe.SizeOf<int>()*_bucketLength);
         
         NativeMemoryHelper.Free(_entries);
-        GC.RemoveMemoryPressure(Unsafe.SizeOf<Entry>()*_entryLength);
+        NativeMemoryHelper.RemoveNativeMemoryByte(Unsafe.SizeOf<Entry>()*_entryLength);
     }
     
     #region Helper methods
@@ -328,7 +328,7 @@ namespace NativeCollection.UnsafeType
             // Assign member variables after both arrays allocated to guard against corruption from OOM if second fails
             var newBucket = (int*)NativeMemoryHelper.AllocZeroed((UIntPtr)(Unsafe.SizeOf<int>() * newSize));
             NativeMemoryHelper.Free(_buckets);
-            GC.RemoveMemoryPressure(Unsafe.SizeOf<int>()*_bucketLength);
+            NativeMemoryHelper.RemoveNativeMemoryByte(Unsafe.SizeOf<int>()*_bucketLength);
             _buckets = newBucket;
             _bucketLength = newSize;
 #if TARGET_64BIT
@@ -346,7 +346,7 @@ namespace NativeCollection.UnsafeType
                 }
             }
             NativeMemoryHelper.Free(_entries);
-            GC.RemoveMemoryPressure(Unsafe.SizeOf<Entry>()*_entryLength);
+            NativeMemoryHelper.RemoveNativeMemoryByte(Unsafe.SizeOf<Entry>()*_entryLength);
             _entries = newEntries;
             _entryLength = newSize;
             
