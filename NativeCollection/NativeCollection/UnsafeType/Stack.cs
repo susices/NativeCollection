@@ -15,13 +15,11 @@ namespace NativeCollection.UnsafeType
         if (initialCapacity < 0) ThrowHelper.StackInitialCapacityException();
 
         var stack = (Stack<T>*)NativeMemoryHelper.Alloc((UIntPtr)System.Runtime.CompilerServices.Unsafe.SizeOf<Stack<T>>());
-        GC.AddMemoryPressure(System.Runtime.CompilerServices.Unsafe.SizeOf<Stack<T>>());
-
+        
         if (initialCapacity < _defaultCapacity)
             initialCapacity = _defaultCapacity; // Simplify doubling logic in Push.
 
         stack->_array = (T*)NativeMemoryHelper.Alloc((UIntPtr)initialCapacity, (UIntPtr)System.Runtime.CompilerServices.Unsafe.SizeOf<T>());
-        GC.AddMemoryPressure(initialCapacity * System.Runtime.CompilerServices.Unsafe.SizeOf<T>());
         stack->ArrayLength = initialCapacity;
         stack->Count = 0;
         stack->_version = 0;

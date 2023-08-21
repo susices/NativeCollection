@@ -174,4 +174,31 @@ public class MemoryLeakTest
         memory.Should().Be(initMemory);
     }
     
+    [Fact]
+    public void HashSetMemoryLeak()
+    {
+        var initMemory = NativeMemoryHelper.GetNativeMemoryBytes();
+
+        NativeCollection.HashSet<int> hashSet = new ();
+        
+        hashSet.Clear();
+        
+        for (int i = 0; i < 100; i++)
+        {
+            for (int j = 0; j < 10; j++)
+            {
+                hashSet.Add(i);
+            }
+            for (int j = 0; j < 10; j++)
+            {
+                hashSet.Remove(i);
+            }
+        }
+        hashSet.Clear();
+        
+        hashSet.Dispose();
+        
+        var memory = NativeMemoryHelper.GetNativeMemoryBytes();
+        memory.Should().Be(initMemory);
+    }
 }

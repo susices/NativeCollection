@@ -35,7 +35,6 @@ namespace NativeCollection.UnsafeType
     private int _freeList;
     private int _freeCount;
     private int _version;
-    private static IEqualityComparer<T> _comparer = EqualityComparer<T>.Default;
 
     public static HashSet<T>* Create(int capacity = 0)
     {
