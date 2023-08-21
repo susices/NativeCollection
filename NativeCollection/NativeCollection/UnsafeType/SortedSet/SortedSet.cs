@@ -84,6 +84,12 @@ namespace NativeCollection.UnsafeType
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool RemoveRef(in T item)
+    {
+        return DoRemove(item);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     void ICollection<T>.Add(T item)
     {
         Add(item);
@@ -115,6 +121,12 @@ namespace NativeCollection.UnsafeType
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Contains(T item)
+    {
+        return FindNode(item) != null;
+    }
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool ContainsRef(in T item)
     {
         return FindNode(item) != null;
     }
@@ -230,7 +242,7 @@ namespace NativeCollection.UnsafeType
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal bool IsWithinRange(T item)
+    internal bool IsWithinRange(in T item)
     {
         return true;
     }
@@ -238,6 +250,12 @@ namespace NativeCollection.UnsafeType
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Add(T item)
+    {
+        return AddIfNotPresent(item);
+    }
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool AddRef(in T item)
     {
         return AddIfNotPresent(item);
     }
@@ -308,7 +326,7 @@ namespace NativeCollection.UnsafeType
         return true;
     }
 
-    internal bool DoRemove(T item)
+    internal bool DoRemove(in T item)
     {
         if (_root == null) return false;
 
@@ -504,7 +522,7 @@ namespace NativeCollection.UnsafeType
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal Node* FindNode(T item)
+    internal Node* FindNode(in T item)
     {
         var current = _root;
         while (current != null)

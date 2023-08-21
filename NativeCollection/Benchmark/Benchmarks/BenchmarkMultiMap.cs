@@ -3,7 +3,7 @@ using BenchmarkDotNet.Configs;
 using NativeCollection.UnsafeType;
 
 namespace Benchmark.Benchmarks;
-//[ShortRunJob]
+[ShortRunJob]
 [GroupBenchmarksBy(BenchmarkLogicalGroupRule.ByCategory)]
 [CategoriesColumn]
 public class BenchmarkMultiMap

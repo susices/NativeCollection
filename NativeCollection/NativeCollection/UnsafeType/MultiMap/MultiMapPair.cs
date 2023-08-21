@@ -19,7 +19,7 @@ namespace NativeCollection.UnsafeType
         }
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static MultiMapPair<T, K> Create(T key, NativePool<List<K>>* pool)
+        public static MultiMapPair<T, K> Create(in T key, NativePool<List<K>>* pool)
         {
             var pair = new MultiMapPair<T, K>(key);
             var list = pool->Alloc();

@@ -48,6 +48,9 @@ namespace NativeCollection.UnsafeType
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Add(T item) => AddIfNotPresent(item, out _);
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool AddRef(in T item) => AddIfNotPresent(item, out _);
 
     IEnumerator<T> IEnumerable<T>.GetEnumerator()
     {
@@ -90,6 +93,12 @@ namespace NativeCollection.UnsafeType
     {
         return FindItemIndex(item) >= 0;
     }
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool ContainsRef(in T item)
+    {
+        return FindItemIndex(item) >= 0;
+    }
 
     #endregion
 
@@ -99,7 +108,7 @@ namespace NativeCollection.UnsafeType
         throw new NotImplementedException();
     }
     
-    public bool Remove(T item)
+    public bool RemoveRef(in T item)
     {
         //if (_buckets == null) return false;
         var entries = _entries;
@@ -149,6 +158,34 @@ namespace NativeCollection.UnsafeType
 
         return false;
     }
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool Remove(T item)
+    {
+        return RemoveRef(item);
+    }
+
+    public bool TryGetValue(in T equalValue, out T actualValue)
+    {
+        int index = FindItemIndex(equalValue);
+        if (index>=0)
+        {
+            actualValue = _entries[index].Value;
+            return true;
+        }
+        actualValue = default;
+        return false;
+    }
+
+    internal T* GetValuePointer(in T key)
+    {
+        int index = FindItemIndex(key);
+        if (index>=0)
+        {
+            return &(_entries + index)->Value;
+        }
+        return null;
+    }
 
     public int Count => _count - _freeCount;
     bool ICollection<T>.IsReadOnly => false;
@@ -192,7 +229,7 @@ namespace NativeCollection.UnsafeType
     /// <param name="location">The index into <see cref="_entries" /> of the element.</param>
     /// <returns>true if the element is added to the <see cref="HashSet{T}" /> object; false if the element is already present.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool AddIfNotPresent(T value, out int location)
+    private bool AddIfNotPresent(in T value, out int location)
     {
         //Console.WriteLine($"AddIfNotPresent:{value}");
         //if (_buckets == null) Initialize(0);
@@ -354,7 +391,7 @@ namespace NativeCollection.UnsafeType
         
         /// <summary>Gets the index of the item in <see cref="_entries"/>, or -1 if it's not in the set.</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private int FindItemIndex(T item)
+        private int FindItemIndex(in T item)
         {
             //if (_buckets == null) return -1;
             var entries = _entries;

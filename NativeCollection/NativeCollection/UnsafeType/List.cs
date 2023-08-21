@@ -77,6 +77,12 @@ namespace NativeCollection.UnsafeType
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Add(T value)
     {
+        AddRef(value);
+    }
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void AddRef(T value)
+    {
         var array = _items;
         var size = Count;
         if ((uint)size < (uint)_arrayLength)
@@ -98,6 +104,12 @@ namespace NativeCollection.UnsafeType
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Remove(T item)
+    {
+        return RemoveRef(item);
+    }
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool RemoveRef(in T item)
     {
         var index = IndexOf(item);
         //Console.WriteLine($"index: {index}");

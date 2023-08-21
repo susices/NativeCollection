@@ -201,4 +201,32 @@ public class MemoryLeakTest
         var memory = NativeMemoryHelper.GetNativeMemoryBytes();
         memory.Should().Be(initMemory);
     }
+    
+    [Fact]
+    public void UnOrderMapMemoryLeak()
+    {
+        var initMemory = NativeMemoryHelper.GetNativeMemoryBytes();
+
+        NativeCollection.UnOrderMap<int,int> unOrderMap = new ();
+        
+        unOrderMap.Clear();
+        
+        for (int i = 0; i < 100; i++)
+        {
+            for (int j = 0; j < 10; j++)
+            {
+                unOrderMap.Add(i,1);
+            }
+            for (int j = 0; j < 10; j++)
+            {
+                unOrderMap.Remove(i);
+            }
+        }
+        unOrderMap.Clear();
+        
+        unOrderMap.Dispose();
+        
+        var memory = NativeMemoryHelper.GetNativeMemoryBytes();
+        memory.Should().Be(initMemory);
+    }
 }
