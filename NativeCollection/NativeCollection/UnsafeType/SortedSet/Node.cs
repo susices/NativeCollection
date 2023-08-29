@@ -322,7 +322,7 @@ namespace NativeCollection.UnsafeType
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool Equals(Node other)
         {
-            return ((Object)Item).Equals(other.Item) && Self == other.Self && Color == other.Color && Left == other.Left &&
+            return (Item).Equals(other.Item) && Self == other.Self && Color == other.Color && Left == other.Left &&
                    Right == other.Right;
         }
 
