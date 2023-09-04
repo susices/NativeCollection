@@ -10,8 +10,12 @@ namespace NativeCollection.UnsafeType
         
         public T Key { get; private set; }
     
-        public ref UnsafeType.List<K> Value => ref Unsafe.AsRef<UnsafeType.List<K>>(_value);
-    
+        public ref UnsafeType.List<K> Value
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get { return ref Unsafe.AsRef<UnsafeType.List<K>>(_value); }
+        }
+
         public MultiMapPair(T key)
         {
             Key = key;

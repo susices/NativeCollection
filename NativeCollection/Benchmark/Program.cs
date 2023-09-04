@@ -11,7 +11,7 @@ public static class Program
     public static void Main()
     {
         //var summary = BenchmarkRunner.Run(typeof(Program).Assembly);
-        var summary = BenchmarkRunner.Run<BenchmarkUnOrderMap>();
+        var summary = BenchmarkRunner.Run<BenchmarkMultiMap>();
     }
     
 }

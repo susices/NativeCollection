@@ -29,10 +29,18 @@ namespace NativeCollection.UnsafeType
         return sortedSet;
     }
 
-    public T? Min => MinInternal;
+    public T? Min
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get
+        {
+            return MinInternal;
+        }
+    }
 
     internal T? MinInternal
     {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get
         {
             if (_root == null) return default;
@@ -44,10 +52,15 @@ namespace NativeCollection.UnsafeType
         }
     }
 
-    public T? Max => MaxInternal;
+    public T? Max
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get { return MaxInternal; }
+    }
 
     internal T? MaxInternal
     {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get
         {
             if (_root == null) return default;
@@ -62,6 +75,7 @@ namespace NativeCollection.UnsafeType
 
     public int Count
     {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get
         {
             VersionCheck(true);

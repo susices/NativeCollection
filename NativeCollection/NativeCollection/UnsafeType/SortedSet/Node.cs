@@ -22,23 +22,46 @@ namespace NativeCollection.UnsafeType
     }
     internal struct Node : IEquatable<Node>, IPool
     {
-        public T Item;
-
-        public Node* Self;
-
-        public NodeColor Color;
-
         public Node* Left;
 
         public Node* Right;
+        
+        public NodeColor Color;
+        
+        public T Item;
+        
+        public Node* Self
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get { return (Node*)Unsafe.AsPointer(ref this); }
+        }
 
-        public bool IsBlack => Color == NodeColor.Black;
+        public bool IsBlack
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get { return Color == NodeColor.Black; }
+        }
 
-        public bool IsRed => Color == NodeColor.Red;
+        public bool IsRed
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get { return Color == NodeColor.Red; }
+        }
 
-        public bool Is2Node => IsBlack && IsNullOrBlack(Left) && IsNullOrBlack(Right);
+        public bool Is2Node
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get { return IsBlack && IsNullOrBlack(Left) && IsNullOrBlack(Right); }
+        }
 
-        public bool Is4Node => IsNonNullRed(Left) && IsNonNullRed(Right);
+        public bool Is4Node
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get
+            {
+                return IsNonNullRed(Left) && IsNonNullRed(Right);
+            }
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void ColorBlack()
@@ -73,7 +96,6 @@ namespace NativeCollection.UnsafeType
         public static Node* Create(in T item, NodeColor nodeColor)
         {
             var node = (Node*)NativeMemoryHelper.Alloc((UIntPtr)Unsafe.SizeOf<Node>());
-            node->Self = node;
             node->Item = item;
             node->Color = nodeColor;
             node->Left = null;
@@ -89,7 +111,16 @@ namespace NativeCollection.UnsafeType
             {
                 return Create(item, nodeColor);
             }
-            node->Self = node;
+            node->Item = item;
+            node->Color = nodeColor;
+            node->Left = null;
+            node->Right = null;
+            return node;
+        }
+
+        public static Node* AllocFromMemoryPool(in T item, NodeColor nodeColor, MemoryPool* memoryPool)
+        {
+            Node* node = (Node*)memoryPool->Alloc();
             node->Item = item;
             node->Color = nodeColor;
             node->Left = null;
