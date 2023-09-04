@@ -23,14 +23,10 @@ namespace NativeCollection.UnsafeType
         }
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static MultiMapPair<T, K> Create(in T key, NativePool<List<K>>* pool)
+        public static MultiMapPair<T, K> Create(in T key, MemoryPool* pool)
         {
             var pair = new MultiMapPair<T, K>(key);
-            var list = pool->Alloc();
-            if (list==null)
-            {
-                list = List<K>.Create();
-            }
+            var list = List<K>.AllocFromMemoryPool(pool);
             pair._value = list;
             return pair;
         }
@@ -54,11 +50,11 @@ namespace NativeCollection.UnsafeType
         }
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Dispose(NativePool<List<K>>* pool)
+        public void Dispose(MemoryPool* pool)
         {
             if (_value!=null)
             {
-                pool->Return(_value);
+                pool->Free((byte*)_value);
             }
         }
     }

@@ -8,7 +8,7 @@ namespace Benchmark.Benchmarks;
 [CategoriesColumn]
 public class BenchmarkSortedSet
 {
-    [Params(10000,100000,1000000)]
+    [Params(10000,100000)]
     public int Count { get; set; }
     private List<int> input;
     private NativeCollection.SortedSet<int> nativesSortedSet;
@@ -111,5 +111,11 @@ public class BenchmarkSortedSet
         {
             result += value;
         }
+    }
+    
+    [GlobalCleanup]
+    public void Dispose()
+    {
+        nativesSortedSet.Dispose();
     }
 }

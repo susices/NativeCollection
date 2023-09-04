@@ -20,6 +20,7 @@ public unsafe class SortedSetTest
 
         nativeSortedSet.Min.Should().Be(managedSortedSet.Min);
         nativeSortedSet.Max.Should().Be(managedSortedSet.Max);
+        nativeSortedSet.Clear();
     }
 
     [Fact]

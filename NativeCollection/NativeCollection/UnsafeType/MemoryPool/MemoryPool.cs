@@ -13,7 +13,11 @@ namespace NativeCollection.UnsafeType
         public SlabLinkedList InUsedSlabs;
 
         public SlabLinkedList UnUsedSlabs;
-        public MemoryPool* Self => (MemoryPool*)Unsafe.AsPointer(ref this);
+        public MemoryPool* Self
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get { return (MemoryPool*)Unsafe.AsPointer(ref this); }
+        }
 
         public static MemoryPool* Create(int blockSize, int itemSize)
         {
@@ -42,7 +46,7 @@ namespace NativeCollection.UnsafeType
                 }
             }
             return allocPtr;
-        }
+        } 
 
         public void Free(byte* ptr)
         {
@@ -73,6 +77,17 @@ namespace NativeCollection.UnsafeType
                 InUsedSlabs.AddToTop(slab);
             }
         }
+
+        public void ReleaseUnUsedSlabs()
+        {
+            Slab* unUsedSlab = UnUsedSlabs.Top;
+            while (unUsedSlab!=null)
+            {
+                Slab* currentSlab = unUsedSlab;
+                unUsedSlab = unUsedSlab->Next;
+                currentSlab->Dispose();
+            }
+        }
         
         
         public void Dispose()
@@ -84,14 +99,8 @@ namespace NativeCollection.UnsafeType
                 inUsedSlab = inUsedSlab->Next;
                 currentSlab->Dispose();
             }
-            
-            Slab* unUsedSlab = UnUsedSlabs.Top;
-            while (unUsedSlab!=null)
-            {
-                Slab* currentSlab = unUsedSlab;
-                unUsedSlab = unUsedSlab->Next;
-                currentSlab->Dispose();
-            }
+
+            ReleaseUnUsedSlabs();
 
             if (Self!=null)
             {

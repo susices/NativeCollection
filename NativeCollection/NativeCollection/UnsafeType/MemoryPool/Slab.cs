@@ -21,11 +21,16 @@ namespace NativeCollection.UnsafeType
 
             public Slab* Next;
 
-            public Slab* Self => (Slab*)Unsafe.AsPointer(ref this);
+            public Slab* Self
+            {
+                [MethodImpl(MethodImplOptions.AggressiveInlining)]
+                get { return (Slab*)Unsafe.AsPointer(ref this); }
+            }
 
             public static Slab* Create(int blockSize,int itemSize,Slab* prevSlab , Slab* nextSlab )
             {
-                int slabSize =Unsafe.SizeOf<Slab>() + (itemSize + Unsafe.SizeOf<IntPtr>()) * blockSize;
+                int size = itemSize + Unsafe.SizeOf<IntPtr>();
+                int slabSize =Unsafe.SizeOf<Slab>() + size * blockSize;
                 byte* slabBuffer  = (byte*)NativeMemoryHelper.Alloc((UIntPtr)slabSize);
                 Slab* slab = (Slab*)slabBuffer;
                 slab->BlockSize = blockSize;
@@ -36,9 +41,10 @@ namespace NativeCollection.UnsafeType
                 slabBuffer+=Unsafe.SizeOf<Slab>();
 
                 ListNode* next = null;
+                
                 for (int i = blockSize-1; i >= 0; i--)
                 {
-                    ListNode* listNode = (ListNode*)slabBuffer[i];
+                    ListNode* listNode = (ListNode*)(slabBuffer + i*size);
                     listNode->Next = next;
                     next = listNode;
                 }
@@ -46,7 +52,7 @@ namespace NativeCollection.UnsafeType
                 slab->FreeList = next;
                 return slab;
             }
-
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public byte* Alloc()
             {
                 Debug.Assert(FreeList!=null && FreeSize>0);
@@ -57,7 +63,7 @@ namespace NativeCollection.UnsafeType
                 node += 1;
                 return (byte*)node;
             }
-
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void Free(ListNode* node)
             {
                 Debug.Assert(FreeSize<BlockSize && node!=null);
@@ -65,12 +71,12 @@ namespace NativeCollection.UnsafeType
                 node->Next = FreeList;
                 FreeList = node;
             }
-
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public bool IsAllFree()
             {
-                return FreeSize == ItemSize;
+                return FreeSize == BlockSize;
             }
-
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public bool IsAllAlloc()
             {
                 return FreeSize == 0;
@@ -175,7 +181,14 @@ namespace NativeCollection.UnsafeType
                         Top->Prev = null;
                         oldTop->Prev = Top;
                     }
+                    return;
                 }
+
+                Slab* oldSlab = Top;
+                Top = slab;
+                Top->Next = oldSlab;
+                Top->Prev = null;
+                oldSlab->Prev = Top;
             }
         }
     }

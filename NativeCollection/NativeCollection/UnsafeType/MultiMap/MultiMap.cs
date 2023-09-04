@@ -10,13 +10,13 @@ namespace NativeCollection.UnsafeType
 {
     private UnsafeType.SortedSet<MultiMapPair<T, K>>* _sortedSet;
 
-    private NativePool<List<K>>* _listPool;
+    private MemoryPool* _listMemoryPool;
 
-    public static MultiMap<T, K>* Create(int maxPoolSize)
+    public static MultiMap<T, K>* Create(int poolBlockSize)
     {
         MultiMap<T, K>* multiMap = (MultiMap<T, K>*)NativeMemoryHelper.Alloc((UIntPtr)Unsafe.SizeOf<MultiMap<T, K>>());
-        multiMap->_sortedSet = UnsafeType.SortedSet<MultiMapPair<T, K>>.Create(maxPoolSize);
-        multiMap->_listPool = NativePool<List<K>>.Create(maxPoolSize);
+        multiMap->_sortedSet = UnsafeType.SortedSet<MultiMapPair<T, K>>.Create(poolBlockSize);
+        multiMap->_listMemoryPool = MemoryPool.Create(poolBlockSize,Unsafe.SizeOf<List<K>>());
         return multiMap;
     }
 
@@ -44,7 +44,7 @@ namespace NativeCollection.UnsafeType
         }
         else
         {
-            list = MultiMapPair<T, K>.Create(key,_listPool);
+            list = MultiMapPair<T, K>.Create(key,_listMemoryPool);
             _sortedSet->AddRef(list);
         }
         list.Value.AddRef(value);
@@ -76,14 +76,23 @@ namespace NativeCollection.UnsafeType
         if (node == null) return false;
         list = node->Item;
         var sortedSetRemove = _sortedSet->RemoveRef(list);
-        list.Dispose(_listPool);
+        list.Dispose(_listMemoryPool);
         return sortedSetRemove;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Clear()
     {
+        using var enumerator = GetEnumerator();
+        do
+        {
+            if (enumerator.CurrentPointer != null)
+            {
+                enumerator.CurrentPointer->Item.Dispose(_listMemoryPool);
+            }
+        } while (enumerator.MoveNext());
         _sortedSet->Clear();
+        //_listMemoryPool->ReleaseUnUsedSlabs();
     }
 
     public int Count => _sortedSet->Count;
@@ -115,11 +124,10 @@ namespace NativeCollection.UnsafeType
             NativeMemoryHelper.RemoveNativeMemoryByte(Unsafe.SizeOf<UnsafeType.SortedSet<MultiMapPair<T, K>>>());
         }
 
-        if (_listPool!=null)
+        if (_listMemoryPool!=null)
         {
-            _listPool->Dispose();
-            NativeMemoryHelper.Free(_listPool);
-            NativeMemoryHelper.RemoveNativeMemoryByte(Unsafe.SizeOf<NativePool<List<K>>>());
+            _listMemoryPool->Dispose();
+            _listMemoryPool = null;
         }
     }
 }

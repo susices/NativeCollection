@@ -8,7 +8,7 @@ namespace Benchmark.Benchmarks;
 [CategoriesColumn]
 public class BenchmarkMap
 {
-    [Params(100,1000,10000,100000,1000000)]
+    [Params(128,10000,100000)]
     public int KeyCount { get; set; }
     
     private System.Collections.Generic.List<int> input;

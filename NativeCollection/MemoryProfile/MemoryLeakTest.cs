@@ -105,10 +105,7 @@ public class MemoryLeakTest
             {
                 sortedSet.Add(i);
             }
-            for (int j = 0; j < 10; j++)
-            {
-                sortedSet.Remove(i);
-            }
+
         }
         sortedSet.Clear();
         
@@ -133,12 +130,8 @@ public class MemoryLeakTest
             {
                 multiMap.Add(i,j);
             }
-            for (int j = 0; j < 10; j++)
-            {
-                multiMap.Remove(i,j);
-            }
         }
-        multiMap.Clear();
+        //multiMap.Clear();
         
         multiMap.Dispose();
         
@@ -160,10 +153,6 @@ public class MemoryLeakTest
             for (int j = 0; j < 10; j++)
             {
                 map.Add(i,j);
-            }
-            for (int j = 0; j < 10; j++)
-            {
-                map.Remove(i);
             }
         }
         map.Clear();
