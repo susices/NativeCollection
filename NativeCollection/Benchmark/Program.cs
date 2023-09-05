@@ -11,23 +11,8 @@ public static class Program
     public static void Main()
     {
         //var summary = BenchmarkRunner.Run(typeof(Program).Assembly);
-        //var summary = BenchmarkRunner.Run<BenchmarkMemoryPool>();
-
-
-        NativeCollection.MultiMap<int, int> multiMap = new ();
+        var summary = BenchmarkRunner.Run<BenchmarkMultiMap>();
         
-        multiMap.Clear();
-        
-        for (int i = 0; i < 100; i++)
-        {
-            for (int j = 0; j < 10; j++)
-            {
-                multiMap.Add(i,j);
-            }
-        }
-        multiMap.Clear();
-        
-        multiMap.Dispose();
     } 
     
 }

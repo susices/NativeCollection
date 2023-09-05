@@ -131,7 +131,7 @@ public class MemoryLeakTest
                 multiMap.Add(i,j);
             }
         }
-        //multiMap.Clear();
+        multiMap.Clear();
         
         multiMap.Dispose();
         

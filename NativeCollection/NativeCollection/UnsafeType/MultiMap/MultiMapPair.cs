@@ -54,6 +54,7 @@ namespace NativeCollection.UnsafeType
         {
             if (_value!=null)
             {
+                _value->Dispose();
                 pool->Free((byte*)_value);
             }
         }

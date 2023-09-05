@@ -87,6 +87,7 @@ namespace NativeCollection.UnsafeType
                 unUsedSlab = unUsedSlab->Next;
                 currentSlab->Dispose();
             }
+            UnUsedSlabs = new SlabLinkedList(null);
         }
         
         

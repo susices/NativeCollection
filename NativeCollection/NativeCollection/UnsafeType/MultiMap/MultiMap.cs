@@ -92,7 +92,7 @@ namespace NativeCollection.UnsafeType
             }
         } while (enumerator.MoveNext());
         _sortedSet->Clear();
-        //_listMemoryPool->ReleaseUnUsedSlabs();
+        _listMemoryPool->ReleaseUnUsedSlabs();
     }
 
     public int Count => _sortedSet->Count;
@@ -119,6 +119,7 @@ namespace NativeCollection.UnsafeType
     {
         if (_sortedSet != null)
         {
+            Clear();
             _sortedSet->Dispose();
             NativeMemoryHelper.Free(_sortedSet);
             NativeMemoryHelper.RemoveNativeMemoryByte(Unsafe.SizeOf<UnsafeType.SortedSet<MultiMapPair<T, K>>>());
