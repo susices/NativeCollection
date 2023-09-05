@@ -13,12 +13,17 @@ namespace NativeCollection
 
     private const int _defaultPoolBlockSize = 64;
 
+    private const int _defaultListPoolSize = 200;
+
     private int _poolBlockSize;
+
+    private int _listPoolSize;
     
-    public MultiMap(int nodePoolBlockSize = _defaultPoolBlockSize)
+    public MultiMap(int listPoolSize = _defaultListPoolSize,int nodePoolBlockSize = _defaultPoolBlockSize)
     {
         _poolBlockSize = nodePoolBlockSize;
-        _multiMap = UnsafeType.MultiMap<T, K>.Create(_poolBlockSize);
+        _listPoolSize = listPoolSize;
+        _multiMap = UnsafeType.MultiMap<T, K>.Create(_poolBlockSize,_listPoolSize);
         IsDisposed = false;
     }
     
@@ -87,7 +92,7 @@ namespace NativeCollection
     {
         if (IsDisposed)
         {
-            _multiMap = UnsafeType.MultiMap<T, K>.Create(_poolBlockSize);
+            _multiMap = UnsafeType.MultiMap<T, K>.Create(_poolBlockSize,_listPoolSize);
             IsDisposed = false;
         }
     }

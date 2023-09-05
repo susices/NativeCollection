@@ -13,8 +13,8 @@ namespace NativeCollection.UnsafeType
     private SortedSet<T>* _self;
     private int _count;
     private Node* _root;
-    private MemoryPool* _nodeMemoryPool;
-    private NativePool<Stack<IntPtr>>* _stackPool;
+    private FixedSizeMemoryPool* _nodeMemoryPool;
+    private NativeStackPool<Stack<IntPtr>>* _stackPool;
     private int _version;
     private const int _defaultNodePoolBlockSize = 64;
     public static SortedSet<T>* Create(int nodePoolBlockSize = _defaultNodePoolBlockSize)
@@ -24,8 +24,8 @@ namespace NativeCollection.UnsafeType
         sortedSet->_root = null;
         sortedSet->_count = 0;
         sortedSet->_version = 0;
-        sortedSet->_stackPool = NativePool<Stack<IntPtr>>.Create(2);
-        sortedSet->_nodeMemoryPool = MemoryPool.Create(nodePoolBlockSize, Unsafe.SizeOf<Node>());
+        sortedSet->_stackPool = NativeStackPool<Stack<IntPtr>>.Create(2);
+        sortedSet->_nodeMemoryPool = FixedSizeMemoryPool.Create(nodePoolBlockSize, Unsafe.SizeOf<Node>());
         return sortedSet;
     }
 
@@ -116,7 +116,7 @@ namespace NativeCollection.UnsafeType
         {
             if (enumerator.CurrentPointer != null)
             {
-                _nodeMemoryPool->Free((byte*)enumerator.CurrentPointer);
+                _nodeMemoryPool->Free(enumerator.CurrentPointer);
                 
             }
         } while (enumerator.MoveNext());
@@ -156,7 +156,7 @@ namespace NativeCollection.UnsafeType
         {
             _stackPool->Dispose();
             NativeMemoryHelper.Free(_stackPool);
-            NativeMemoryHelper.RemoveNativeMemoryByte(Unsafe.SizeOf<NativePool<Stack<IntPtr>>>());
+            NativeMemoryHelper.RemoveNativeMemoryByte(Unsafe.SizeOf<NativeStackPool<Stack<IntPtr>>>());
         }
 
         if (_nodeMemoryPool!=null)
@@ -435,7 +435,7 @@ namespace NativeCollection.UnsafeType
             ReplaceNode(match, parentOfMatch!, parent!, grandParent!);
             --_count;
             //_nodePool->Return(match);
-            _nodeMemoryPool->Free((byte*)match);
+            _nodeMemoryPool->Free(match);
         }
 
         if (_root != null) _root->ColorBlack();

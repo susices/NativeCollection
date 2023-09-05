@@ -3,9 +3,9 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-namespace NativeCollection.UnsafeType
+namespace NativeCollection
 {
-    public unsafe partial struct MemoryPool
+    public unsafe partial struct FixedSizeMemoryPool
     {
         public struct Slab : IDisposable
         {
@@ -101,6 +101,7 @@ namespace NativeCollection.UnsafeType
         
         public struct SlabLinkedList
         {
+            public int SlabCount;
             public Slab* Top;
             public Slab* Bottom;
 
@@ -131,6 +132,7 @@ namespace NativeCollection.UnsafeType
             {
                 Debug.Assert(splitSlab!=null && Top!=null && Bottom!=null);
 
+                SlabCount--;
                 // 只有一个slab
                 if (Top==Bottom)
                 {
@@ -164,6 +166,7 @@ namespace NativeCollection.UnsafeType
 
             public void AddToTop(Slab* slab)
             {
+                SlabCount++;
                 if (Top == Bottom)
                 {
                     if (Top==null)

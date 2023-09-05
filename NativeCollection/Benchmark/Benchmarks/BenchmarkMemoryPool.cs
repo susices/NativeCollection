@@ -1,6 +1,7 @@
 using System.Runtime.InteropServices;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Configs;
+using NativeCollection;
 using NativeCollection.UnsafeType;
 
 namespace Benchmark.Benchmarks;
@@ -15,7 +16,7 @@ public class BenchmarkMemoryPool
     {
         unsafe
         {
-            MemoryPool* memoryPool =MemoryPool.Create(32, 32);
+            FixedSizeMemoryPool* memoryPool =FixedSizeMemoryPool.Create(32, 32);
             for (int i = 0; i < 10000; i++)
             {
                 var ptr =  memoryPool->Alloc();

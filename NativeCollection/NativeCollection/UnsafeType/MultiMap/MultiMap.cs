@@ -10,13 +10,16 @@ namespace NativeCollection.UnsafeType
 {
     private UnsafeType.SortedSet<MultiMapPair<T, K>>* _sortedSet;
 
-    private MemoryPool* _listMemoryPool;
+    private FixedSizeMemoryPool* _listMemoryPool;
 
-    public static MultiMap<T, K>* Create(int poolBlockSize)
+    private NativeStackPool<List<K>>* _listStackPool;
+
+    public static MultiMap<T, K>* Create(int poolBlockSize,int listPoolSize)
     {
         MultiMap<T, K>* multiMap = (MultiMap<T, K>*)NativeMemoryHelper.Alloc((UIntPtr)Unsafe.SizeOf<MultiMap<T, K>>());
         multiMap->_sortedSet = UnsafeType.SortedSet<MultiMapPair<T, K>>.Create(poolBlockSize);
-        multiMap->_listMemoryPool = MemoryPool.Create(poolBlockSize,Unsafe.SizeOf<List<K>>());
+        multiMap->_listMemoryPool = FixedSizeMemoryPool.Create(poolBlockSize,Unsafe.SizeOf<List<K>>());
+        multiMap->_listStackPool = NativeStackPool<List<K>>.Create(listPoolSize);
         return multiMap;
     }
 
@@ -44,7 +47,7 @@ namespace NativeCollection.UnsafeType
         }
         else
         {
-            list = MultiMapPair<T, K>.Create(key,_listMemoryPool);
+            list = MultiMapPair<T, K>.Create(key,_listMemoryPool,_listStackPool);
             _sortedSet->AddRef(list);
         }
         list.Value.AddRef(value);
@@ -76,7 +79,7 @@ namespace NativeCollection.UnsafeType
         if (node == null) return false;
         list = node->Item;
         var sortedSetRemove = _sortedSet->RemoveRef(list);
-        list.Dispose(_listMemoryPool);
+        list.Dispose(_listMemoryPool,_listStackPool);
         return sortedSetRemove;
     }
 
@@ -88,9 +91,17 @@ namespace NativeCollection.UnsafeType
         {
             if (enumerator.CurrentPointer != null)
             {
-                enumerator.CurrentPointer->Item.Dispose(_listMemoryPool);
+                enumerator.CurrentPointer->Item.Dispose(_listMemoryPool,_listStackPool);
             }
         } while (enumerator.MoveNext());
+
+        List<K>* list = _listStackPool->Alloc();
+        while (list!=null)
+        {
+            list->Dispose();
+            _listMemoryPool->Free(list);
+            list = _listStackPool->Alloc();
+        }
         _sortedSet->Clear();
         _listMemoryPool->ReleaseUnUsedSlabs();
     }
@@ -123,6 +134,13 @@ namespace NativeCollection.UnsafeType
             _sortedSet->Dispose();
             NativeMemoryHelper.Free(_sortedSet);
             NativeMemoryHelper.RemoveNativeMemoryByte(Unsafe.SizeOf<UnsafeType.SortedSet<MultiMapPair<T, K>>>());
+        }
+        
+        if (_listStackPool!=null)
+        {
+            _listStackPool->Dispose();
+            NativeMemoryHelper.Free(_listStackPool);
+            NativeMemoryHelper.RemoveNativeMemoryByte(Unsafe.SizeOf<NativeStackPool<List<K>>>());
         }
 
         if (_listMemoryPool!=null)
