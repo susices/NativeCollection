@@ -97,17 +97,14 @@ public class MemoryLeakTest
 
         NativeCollection.SortedSet<int> sortedSet = new NativeCollection.SortedSet<int>();
         
-        sortedSet.Clear();
-        
-        for (int i = 0; i < 100; i++)
+        for (int i = 0; i < 1000; i++)
         {
             for (int j = 0; j < 10; j++)
             {
                 sortedSet.Add(i);
             }
-
         }
-        sortedSet.Clear();
+        //sortedSet.Clear();
         
         sortedSet.Dispose();
         
@@ -120,11 +117,11 @@ public class MemoryLeakTest
     {
         var initMemory = NativeMemoryHelper.GetNativeMemoryBytes();
        
-        MultiMap<int, int> multiMap = new ();
+        MultiMap<int, int> multiMap = new (1000);
         
         multiMap.Clear();
         
-        for (int i = 0; i < 100; i++)
+        for (int i = 0; i < 129; i++)
         {
             for (int j = 0; j < 10; j++)
             {
@@ -137,6 +134,20 @@ public class MemoryLeakTest
         
         var memory = NativeMemoryHelper.GetNativeMemoryBytes();
         memory.Should().Be(initMemory);
+        
+        multiMap.ReInit();
+        
+         for (int i = 0; i < 100; i++)
+         {
+             for (int j = 0; j < 10; j++)
+             {
+                 multiMap.Add(i,j);
+             }
+         }
+         multiMap.Clear();
+         multiMap.Dispose();
+         memory = NativeMemoryHelper.GetNativeMemoryBytes();
+         memory.Should().Be(initMemory);
     }
     
     [Fact]
@@ -172,16 +183,10 @@ public class MemoryLeakTest
         
         hashSet.Clear();
         
-        for (int i = 0; i < 100; i++)
+        for (int i = 0; i < 1000; i++)
         {
-            for (int j = 0; j < 10; j++)
-            {
-                hashSet.Add(i);
-            }
-            for (int j = 0; j < 10; j++)
-            {
-                hashSet.Remove(i);
-            }
+            hashSet.Add(i);
+            
         }
         hashSet.Clear();
         
@@ -200,12 +205,12 @@ public class MemoryLeakTest
         
         unOrderMap.Clear();
         
-        for (int i = 0; i < 100; i++)
+        for (int i = 0; i < 10000; i++)
         {
             unOrderMap.Add(i,1);
             
         }
-        for (int i = 0; i < 100; i++)
+        for (int i = 0; i < 10000; i++)
         {
             unOrderMap.Remove(i);
         }

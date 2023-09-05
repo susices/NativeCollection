@@ -85,7 +85,8 @@ namespace NativeCollection
             public void Dispose()
             {
                 int slabSize =Unsafe.SizeOf<Slab>() + (ItemSize + Unsafe.SizeOf<IntPtr>()) * BlockSize;
-                NativeMemoryHelper.Free(Self);
+                Slab* self = Self;
+                NativeMemoryHelper.Free(self);
                 NativeMemoryHelper.RemoveNativeMemoryByte(slabSize);
             }
         }
@@ -109,6 +110,7 @@ namespace NativeCollection
             {
                 Top = initSlab;
                 Bottom = initSlab;
+                SlabCount = initSlab==null?0:1;
             }
 
             public void MoveTopToBottom()
@@ -148,6 +150,7 @@ namespace NativeCollection
                 {
                     Top = splitSlab->Next;
                     splitSlab->Next = null;
+                    Top->Prev = null;
                     return;
                 }
 
@@ -159,7 +162,10 @@ namespace NativeCollection
                     return;
                 }
 
-                splitSlab->Prev->Next = splitSlab->Next;
+                var prev = splitSlab->Prev;
+                var next = splitSlab->Next;
+                prev->Next = next;
+                next->Prev = prev;
                 splitSlab->Prev = null;
                 splitSlab->Next = null;
             }
