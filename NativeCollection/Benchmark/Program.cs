@@ -12,6 +12,7 @@ public static class Program
     {
         //var summary = BenchmarkRunner.Run(typeof(Program).Assembly);
         var summary = BenchmarkRunner.Run<BenchmarkSortedSet>();
+        
     } 
     
 }

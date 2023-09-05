@@ -104,7 +104,25 @@ namespace NativeCollection.UnsafeType
     
     public void CopyTo(T[] array, int arrayIndex)
     {
-        throw new NotImplementedException();
+        if (array==null)
+        {
+            ThrowHelper.ArgumentNullException("array");
+        }
+        
+        if (arrayIndex<0 &&arrayIndex >= array.Length)
+        {
+            ThrowHelper.ArgumentOutOfRangeException("arrayIndex");
+        }
+
+        var arraySpan = array.AsSpan(arrayIndex);
+        for (int i = 0; i < _count && _count!=0; i++)
+        {
+            ref Entry entry = ref _entries[i];
+            if (entry.Next >= -1)
+            {
+                arraySpan[i] = entry.Value;
+            }
+        }
     }
     
     public bool RemoveRef(in T item)

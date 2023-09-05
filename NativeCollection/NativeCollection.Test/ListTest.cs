@@ -168,6 +168,25 @@ public class ListTest
     }
 
     [Fact]
+    public void CopyTo()
+    {
+        int[] array = new int[100];
+        List<int> list = new List<int>();
+        for (int i = 0; i < 100; i++)
+        {
+            list.Add(i);
+        }
+
+        list.CopyTo(array,0);
+
+        for (int i = 0; i < 100; i++)
+        {
+            array[i].Should().Be(i);
+        }
+
+    }
+
+    [Fact]
     public void NativeCollectionClass()
     {
         List<int> nativeList = new List<int>();
@@ -186,7 +205,4 @@ public class ListTest
             nativeList.Add(Random.Shared.Next());
         }
     }
-    
-    
-    
 }

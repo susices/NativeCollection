@@ -48,7 +48,17 @@ namespace NativeCollection
         {
             throw new ArgumentOutOfRangeException("ListIndexOutOfRange");
         }
-        
+
+        [DoesNotReturn]
+        public static void ArgumentNullException(string argName)
+        {
+            throw new ArgumentNullException(argName);
+        }
+        [DoesNotReturn]
+        public static void ArgumentOutOfRangeException(string argName)
+        {
+            throw new ArgumentOutOfRangeException(argName);
+        }
         
         [DoesNotReturn]
         public static void ConcurrentOperationsNotSupported()

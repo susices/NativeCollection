@@ -115,12 +115,6 @@ public unsafe struct UnOrderMap<T,K> : IEnumerable<MapPair<T, K>>
     }
 
     #endregion
-
-    
-    public void CopyTo(T[] array, int arrayIndex)
-    {
-        throw new NotImplementedException();
-    }
     
     public bool RemoveRef(in T key)
     {

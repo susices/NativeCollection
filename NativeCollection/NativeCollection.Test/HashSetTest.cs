@@ -88,6 +88,25 @@ public class HashSetTest
     }
     
     [Fact]
+    public void CopyTo()
+    {
+        int[] rawList = new int[100];
+        HashSet<int> hashSet = new HashSet<int>();
+        for (int i = 0; i < 100; i++)
+        {
+            hashSet.Add(i);
+        }
+
+        hashSet.CopyTo(rawList,0);
+
+        for (int i = 0; i < 100; i++)
+        {
+            rawList[i].Should().Be(i);
+        }
+
+    }
+    
+    [Fact]
     public void NativeCollectionClass()
     {
         HashSet<int> hashSet = new HashSet<int>();

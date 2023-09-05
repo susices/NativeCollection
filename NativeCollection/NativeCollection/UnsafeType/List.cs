@@ -115,7 +115,15 @@ namespace NativeCollection.UnsafeType
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void CopyTo(T[] array, int arrayIndex)
     {
-        throw new NotImplementedException();
+        if (array==null)
+        {
+            ThrowHelper.ArgumentNullException("array");
+        }
+        if (arrayIndex<0 &&arrayIndex >= array.Length)
+        {
+            ThrowHelper.ArgumentOutOfRangeException("arrayIndex");
+        }
+        WrittenSpan().CopyTo(array.AsSpan(arrayIndex));
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
