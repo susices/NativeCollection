@@ -174,6 +174,7 @@ namespace NativeCollection.UnsafeType
         return IndexOf(item) >= 0;
     }
     
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Insert(int index, T item)
     {
         // Note that insertions at the end are legal.
@@ -184,12 +185,13 @@ namespace NativeCollection.UnsafeType
         if (Count == _arrayLength) Grow(Count + 1);
         if (index < Count)
         {
-            Unsafe.CopyBlockUnaligned(_items+index+1,_items+index,(uint)(Count-index));
+            Unsafe.CopyBlockUnaligned(_items+index+1,_items+index,(uint)((Count-index)*Unsafe.SizeOf<T>()));
         }
         _items[index] = item;
         Count++;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void AddRange(Span<T> collection)
     {
         InsertRange(Count, collection);
@@ -212,10 +214,13 @@ namespace NativeCollection.UnsafeType
             }
             if (index < Count)
             {
-                Unsafe.CopyBlockUnaligned(_items+index+count,_items+index,(uint)(Count-index));
+                Unsafe.CopyBlockUnaligned(_items+index+count,_items+index,(uint)((Count-index)*Unsafe.SizeOf<T>()));
             }
+
+            var span = TotalSpan();
+            var a = span[0];
             
-            collection.CopyTo(new Span<T>(_items,index));
+            collection.CopyTo(new Span<T>(_items+index, count));
             Count += count;
         }
         
@@ -241,7 +246,7 @@ namespace NativeCollection.UnsafeType
             Count -= count;
             if (index < Count)
             {
-                Unsafe.CopyBlockUnaligned(_items+index,_items+index+count,(uint)(Count-index));
+                Unsafe.CopyBlockUnaligned(_items+index,_items+index+count,(uint)((Count-index)*Unsafe.SizeOf<T>()));
             }
         }
     }

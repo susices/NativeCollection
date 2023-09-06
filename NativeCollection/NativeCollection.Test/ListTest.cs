@@ -75,6 +75,62 @@ public class ListTest
         }
     }
 
+    [Fact]
+    public void Insert()
+    {
+        List<int> list = new List<int>();
+        list.Add(1);
+        list.Add(2);
+        list.Add(3);
+        
+        list.Insert(1,10);
+        list[0].Should().Be(1);
+        list[1].Should().Be(10);
+        list[2].Should().Be(2);
+        list[3].Should().Be(3);
+        list.Count.Should().Be(4);
+    }
+
+    [Fact]
+    public void InsertRange()
+    {
+        List<int> list = new List<int>();
+        list.Add(1);
+        list.Add(2);
+        list.Add(3);
+        list.Add(4);
+        list.Add(5);
+        Span<int> range = stackalloc int[] { 11, 12, 13 };
+        list.InsertRange(2,range);
+
+        list[0].Should().Be(1);
+        list[1].Should().Be(2);
+        list[2].Should().Be(11);
+        list[3].Should().Be(12);
+        list[4].Should().Be(13);
+        list[5].Should().Be(3);
+        list[6].Should().Be(4);
+        list[7].Should().Be(5);
+        list.Count.Should().Be(8);
+    }
+
+    [Fact]
+    public void RemoveRange()
+    {
+        List<int> list = new List<int>();
+        list.Add(1);
+        list.Add(2);
+        list.Add(3);
+        list.Add(4);
+        list.Add(5);
+        
+        list.RemoveRange(1,2);
+        list[0].Should().Be(1);
+        list[1].Should().Be(4);
+        list[2].Should().Be(5);
+        list.Count.Should().Be(3);
+    }
+
 
     [Fact]
     public void Enumerator()

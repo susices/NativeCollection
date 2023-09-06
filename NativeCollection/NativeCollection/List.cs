@@ -81,6 +81,36 @@ namespace NativeCollection
         _list->RemoveAt(index);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void Insert(int index, T item)
+    {
+        _list->Insert(index, item);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void InsertRange(int index, Span<T> collection)
+    {
+        _list->InsertRange(index,collection);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void RemoveRange(int index, int count)
+    {
+        _list->RemoveRange(index,count);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Span<T> WrittenSpan()
+    {
+        return _list->WrittenSpan();
+    }
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Span<T> TotalSpan()
+    {
+        return _list->TotalSpan();
+    }
+
     public ref T this[int index] => ref (*_list)[index];
 
     public int Count => _list->Count;
