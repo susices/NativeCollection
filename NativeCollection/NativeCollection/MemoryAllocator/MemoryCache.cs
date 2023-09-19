@@ -64,13 +64,8 @@ namespace NativeCollection
             return allocPtr;
         }
 
-        public void Free(void* ptr)
+        internal void FreeListNode(Slab* slab, ListNode* listNode)
         {
-            Debug.Assert(ptr!=null);
-            ListNode* listNode = (ListNode*)((byte*)ptr - Unsafe.SizeOf<ListNode>());
-            Debug.Assert(listNode!=null);
-
-            Slab* slab = listNode->ParentSlab;
             slab->Free(listNode);
             
             if (slab==InUsedSlabs.Top)
@@ -100,6 +95,15 @@ namespace NativeCollection
                 InUsedSlabs.SplitOut(slab);
                 InUsedSlabs.AddToTop(slab);
             }
+        }
+
+        public void Free(void* ptr)
+        {
+            Debug.Assert(ptr!=null);
+            ListNode* listNode = (ListNode*)((byte*)ptr - Unsafe.SizeOf<ListNode>());
+            Debug.Assert(listNode!=null);
+            Slab* slab = listNode->ParentSlab;
+            FreeListNode(slab, listNode);
         }
 
         public void ReleaseUnUsedSlabs()
