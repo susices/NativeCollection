@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 
 namespace NativeCollection
 {
-    public unsafe partial struct FixedSizeMemoryPool
+    public unsafe partial struct MemoryCache
     {
         public struct Slab : IDisposable
         {

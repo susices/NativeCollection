@@ -104,7 +104,7 @@ namespace NativeCollection.UnsafeType
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Node* AllocFromMemoryPool(in T item, NodeColor nodeColor, FixedSizeMemoryPool* memoryPool)
+        public static Node* AllocFromMemoryPool(in T item, NodeColor nodeColor, MemoryCache* memoryPool)
         {
             Node* node = (Node*)memoryPool->Alloc();
             node->Item = item;

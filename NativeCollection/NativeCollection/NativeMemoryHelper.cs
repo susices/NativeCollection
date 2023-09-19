@@ -8,7 +8,7 @@ namespace NativeCollection
     public static unsafe class NativeMemoryHelper
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void* Alloc(UIntPtr byteCount)
+        public static void* Alloc(nuint byteCount)
         {
             AddNativeMemoryByte((long)byteCount);
 #if NET6_0_OR_GREATER
@@ -19,7 +19,7 @@ namespace NativeCollection
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void* Alloc(UIntPtr elementCount, UIntPtr elementSize)
+        public static void* Alloc(nuint elementCount, nuint elementSize)
         {
             AddNativeMemoryByte((long)((long)elementCount * (long)elementSize));
 #if NET6_0_OR_GREATER
@@ -30,7 +30,7 @@ namespace NativeCollection
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void* AllocZeroed(UIntPtr byteCount)
+        public static void* AllocZeroed(nuint byteCount)
         {
             AddNativeMemoryByte((long)byteCount);
 #if NET6_0_OR_GREATER
@@ -43,7 +43,7 @@ namespace NativeCollection
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void* AllocZeroed(UIntPtr elementCount, UIntPtr elementSize)
+        public static void* AllocZeroed(nuint elementCount, nuint elementSize)
         {
             AddNativeMemoryByte((long)((long)elementCount * (long)elementSize));
 #if NET6_0_OR_GREATER
@@ -57,7 +57,7 @@ namespace NativeCollection
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Free<T>(T* ptr) where T : unmanaged
+        public static void Free(void* ptr)
         {
 #if NET6_0_OR_GREATER
             NativeMemory.Free(ptr);

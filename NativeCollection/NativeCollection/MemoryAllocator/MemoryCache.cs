@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 
 namespace NativeCollection
 {
-    public unsafe partial struct FixedSizeMemoryPool: IDisposable
+    public unsafe partial struct MemoryCache: IDisposable
     {
         // 最大维护的空slab 多出的空slab直接释放
         public int MaxUnUsedSlabs;
@@ -16,15 +16,27 @@ namespace NativeCollection
         public SlabLinkedList InUsedSlabs;
 
         public SlabLinkedList UnUsedSlabs;
-        public FixedSizeMemoryPool* Self
+        public MemoryCache* Self
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get { return (FixedSizeMemoryPool*)Unsafe.AsPointer(ref this); }
+            get { return (MemoryCache*)Unsafe.AsPointer(ref this); }
+        }
+        
+        internal static MemoryCache* CreateInternal(int blockSize, int itemSize , int maxUnUsedSlabs)
+        {
+            MemoryCache* memoryCache = (MemoryCache*)NativeMemoryHelper.Alloc((UIntPtr)Unsafe.SizeOf<MemoryCache>());
+            memoryCache->ItemSize = itemSize;
+            memoryCache->BlockSize = blockSize;
+            memoryCache->MaxUnUsedSlabs = maxUnUsedSlabs;
+            Slab* initSlab = Slab.Create(blockSize, itemSize,null,null);
+            memoryCache->InUsedSlabs = new SlabLinkedList(initSlab);
+            memoryCache->UnUsedSlabs = new SlabLinkedList(null);
+            return memoryCache;
         }
 
-        public static FixedSizeMemoryPool* Create(int blockSize, int itemSize , int maxUnUsedSlabs = 3)
+        public static MemoryCache* Create(int blockSize, int itemSize , int maxUnUsedSlabs = 3)
         {
-            FixedSizeMemoryPool* memoryPool = (FixedSizeMemoryPool*)NativeMemoryHelper.Alloc((UIntPtr)Unsafe.SizeOf<FixedSizeMemoryPool>());
+            MemoryCache* memoryPool = (MemoryCache*)NativeMemoryHelper.Alloc((UIntPtr)Unsafe.SizeOf<MemoryCache>());
             memoryPool->ItemSize = itemSize;
             memoryPool->BlockSize = blockSize;
             memoryPool->MaxUnUsedSlabs = maxUnUsedSlabs;
@@ -117,7 +129,7 @@ namespace NativeCollection
             if (Self!=null)
             {
                 NativeMemoryHelper.Free(Self);
-                NativeMemoryHelper.RemoveNativeMemoryByte(Unsafe.SizeOf<FixedSizeMemoryPool>());
+                NativeMemoryHelper.RemoveNativeMemoryByte(Unsafe.SizeOf<MemoryCache>());
             }
         }
     }

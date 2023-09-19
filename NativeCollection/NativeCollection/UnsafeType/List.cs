@@ -33,7 +33,7 @@ namespace NativeCollection.UnsafeType
         return list;
     }
 
-    public static List<T>* AllocFromMemoryPool(FixedSizeMemoryPool* memoryPool,int initialCapacity = _defaultCapacity)
+    public static List<T>* AllocFromMemoryPool(MemoryCache* memoryPool,int initialCapacity = _defaultCapacity)
     {
         if (initialCapacity < 0) ThrowHelper.ListInitialCapacityException();
 

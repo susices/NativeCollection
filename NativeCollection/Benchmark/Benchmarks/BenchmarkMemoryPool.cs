@@ -16,7 +16,7 @@ public class BenchmarkMemoryPool
     {
         unsafe
         {
-            FixedSizeMemoryPool* memoryPool =FixedSizeMemoryPool.Create(32, 32);
+            MemoryCache* memoryPool =MemoryCache.Create(32, 32);
             for (int i = 0; i < 10000; i++)
             {
                 var ptr =  memoryPool->Alloc();

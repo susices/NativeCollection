@@ -23,7 +23,7 @@ namespace NativeCollection.UnsafeType
         }
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static MultiMapPair<T, K> Create(in T key, FixedSizeMemoryPool* pool, NativeStackPool<List<K>>* stackPool)
+        public static MultiMapPair<T, K> Create(in T key, MemoryCache* pool, NativeStackPool<List<K>>* stackPool)
         {
             var pair = new MultiMapPair<T, K>(key);
             List<K>* list = stackPool->Alloc();
@@ -54,7 +54,7 @@ namespace NativeCollection.UnsafeType
         }
     
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Dispose(FixedSizeMemoryPool* pool,NativeStackPool<List<K>>* stackPool)
+        public void Dispose(MemoryCache* pool,NativeStackPool<List<K>>* stackPool)
         {
             if (_value!=null)
             {

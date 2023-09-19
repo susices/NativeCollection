@@ -10,7 +10,7 @@ namespace NativeCollection.UnsafeType
 {
     private UnsafeType.SortedSet<MultiMapPair<T, K>>* _sortedSet;
 
-    private FixedSizeMemoryPool* _listMemoryPool;
+    private MemoryCache* _listMemoryPool;
 
     private NativeStackPool<List<K>>* _listStackPool;
 
@@ -18,7 +18,7 @@ namespace NativeCollection.UnsafeType
     {
         MultiMap<T, K>* multiMap = (MultiMap<T, K>*)NativeMemoryHelper.Alloc((UIntPtr)Unsafe.SizeOf<MultiMap<T, K>>());
         multiMap->_sortedSet = UnsafeType.SortedSet<MultiMapPair<T, K>>.Create(poolBlockSize);
-        multiMap->_listMemoryPool = FixedSizeMemoryPool.Create(poolBlockSize,Unsafe.SizeOf<List<K>>());
+        multiMap->_listMemoryPool = MemoryCache.Create(poolBlockSize,Unsafe.SizeOf<List<K>>());
         multiMap->_listStackPool = NativeStackPool<List<K>>.Create(listPoolSize);
         return multiMap;
     }
