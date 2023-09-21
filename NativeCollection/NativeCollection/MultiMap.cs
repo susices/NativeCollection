@@ -82,8 +82,7 @@ namespace NativeCollection
         {
             
             _multiMap->Dispose();
-            NativeMemoryHelper.Free(_multiMap);
-            NativeMemoryHelper.RemoveNativeMemoryByte(Unsafe.SizeOf<UnsafeType.MultiMap<T,K>>());
+            MemoryAllocator.Free(_multiMap);
             IsDisposed = true;
         }
     }

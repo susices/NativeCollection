@@ -37,8 +37,7 @@ namespace NativeCollection
             if (_nativePool != null)
             {
                 _nativePool->Dispose();
-                NativeMemoryHelper.Free(_nativePool);
-                NativeMemoryHelper.RemoveNativeMemoryByte(Unsafe.SizeOf<UnsafeType.NativeStackPool<T>>());
+                MemoryAllocator.Free(_nativePool);
                 IsDisposed = true;
             }
         }

@@ -39,7 +39,7 @@ public unsafe struct UnOrderMap<T,K> : IEnumerable<MapPair<T, K>>
 
     public static UnOrderMap<T,K>* Create(int capacity = 0)
     {
-        UnOrderMap<T,K>* unOrderMap = (UnOrderMap<T,K>*)NativeMemoryHelper.Alloc((UIntPtr)Unsafe.SizeOf<UnOrderMap<T,K>>());
+        UnOrderMap<T,K>* unOrderMap = (UnOrderMap<T,K>*)MemoryAllocator.Alloc((uint)Unsafe.SizeOf<UnOrderMap<T,K>>());
         unOrderMap->_buckets = null;
         unOrderMap->_entries = null;
         unOrderMap->_self = unOrderMap;
@@ -189,11 +189,8 @@ public unsafe struct UnOrderMap<T,K> : IEnumerable<MapPair<T, K>>
 
     public void Dispose()
     {
-        NativeMemoryHelper.Free(_buckets);
-        NativeMemoryHelper.RemoveNativeMemoryByte(Unsafe.SizeOf<int>()*_bucketLength);
-        
-        NativeMemoryHelper.Free(_entries);
-        NativeMemoryHelper.RemoveNativeMemoryByte(Unsafe.SizeOf<Entry>()*_entryLength);
+        MemoryAllocator.Free(_buckets);
+        MemoryAllocator.Free(_entries);
     }
     
     #region Helper methods
@@ -205,9 +202,9 @@ public unsafe struct UnOrderMap<T,K> : IEnumerable<MapPair<T, K>>
     private int Initialize(int capacity)
     {
         int size = HashHelpers.GetPrime(capacity);
-        _buckets = (int*)NativeMemoryHelper.AllocZeroed((UIntPtr)(Unsafe.SizeOf<int>() * size));
+        _buckets = (int*)MemoryAllocator.AllocZeroed((uint)(Unsafe.SizeOf<int>() * size));
         _bucketLength = size;
-        _entries = (Entry*)NativeMemoryHelper.AllocZeroed((UIntPtr)(Unsafe.SizeOf<Entry>() * size));
+        _entries = (Entry*)MemoryAllocator.AllocZeroed((uint)(Unsafe.SizeOf<Entry>() * size));
         _entryLength = size;
         // Assign member variables after both arrays are allocated to guard against corruption from OOM if second fails.
         _freeList = -1;
@@ -365,13 +362,12 @@ public unsafe struct UnOrderMap<T,K> : IEnumerable<MapPair<T, K>>
             Debug.Assert(_entries != null, "_entries should be non-null");
             Debug.Assert(newSize >= _entryLength);
             // Console.WriteLine($"Resize newSize:{newSize} byteSize:{Unsafe.SizeOf<Entry>() * newSize}");
-            var newEntries = (Entry*)NativeMemoryHelper.AllocZeroed((UIntPtr)(Unsafe.SizeOf<Entry>() * newSize));
+            var newEntries = (Entry*)MemoryAllocator.AllocZeroed((uint)(Unsafe.SizeOf<Entry>() * newSize));
             Unsafe.CopyBlockUnaligned(newEntries,_entries,(uint)(Unsafe.SizeOf<Entry>()*_entryLength));
             int count = _count;
             // Assign member variables after both arrays allocated to guard against corruption from OOM if second fails
-            var newBucket = (int*)NativeMemoryHelper.AllocZeroed((UIntPtr)(Unsafe.SizeOf<int>() * newSize));
-            NativeMemoryHelper.Free(_buckets);
-            NativeMemoryHelper.RemoveNativeMemoryByte(Unsafe.SizeOf<int>()*_bucketLength);
+            var newBucket = (int*)MemoryAllocator.AllocZeroed((uint)(Unsafe.SizeOf<int>() * newSize));
+            MemoryAllocator.Free(_buckets);
             _buckets = newBucket;
             _bucketLength = newSize;
 #if TARGET_64BIT
@@ -388,8 +384,7 @@ public unsafe struct UnOrderMap<T,K> : IEnumerable<MapPair<T, K>>
                     bucket = i + 1;
                 }
             }
-            NativeMemoryHelper.Free(_entries);
-            NativeMemoryHelper.RemoveNativeMemoryByte(Unsafe.SizeOf<Entry>()*_entryLength);
+            MemoryAllocator.Free(_entries);
             _entries = newEntries;
             _entryLength = newSize;
             

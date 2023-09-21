@@ -87,8 +87,7 @@ private int _capacity;
             if (_unOrderMap != null)
             {
                 _unOrderMap->Dispose();
-                NativeMemoryHelper.Free(_unOrderMap);
-                NativeMemoryHelper.RemoveNativeMemoryByte(Unsafe.SizeOf<UnsafeType.UnOrderMap<T, K>>());
+                MemoryAllocator.Free(_unOrderMap);
                 IsDisposed = true;
             }
         }

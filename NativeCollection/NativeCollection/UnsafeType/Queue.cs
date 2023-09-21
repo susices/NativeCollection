@@ -16,8 +16,8 @@ namespace NativeCollection.UnsafeType
     {
         if (capacity < 0) throw new ArgumentOutOfRangeException("Capacity<0");
 
-        var queue = (Queue<T>*)NativeMemoryHelper.Alloc((UIntPtr)Unsafe.SizeOf<Queue<T>>());
-        queue->_array = (T*)NativeMemoryHelper.Alloc((UIntPtr)capacity, (UIntPtr)Unsafe.SizeOf<T>());
+        var queue = (Queue<T>*)MemoryAllocator.Alloc((uint)Unsafe.SizeOf<Queue<T>>());
+        queue->_array = (T*)MemoryAllocator.Alloc((uint)capacity * (uint)Unsafe.SizeOf<T>());
         queue->length = capacity;
         queue->_head = 0;
         queue->_tail = 0;
@@ -116,7 +116,7 @@ namespace NativeCollection.UnsafeType
 
     private void SetCapacity(int capacity)
     {
-        var destinationArray = (T*)NativeMemoryHelper.Alloc((UIntPtr)capacity, (UIntPtr)Unsafe.SizeOf<T>());
+        var destinationArray = (T*)MemoryAllocator.Alloc((uint)capacity * (uint)Unsafe.SizeOf<T>());
         if (Count > 0)
         {
             if (_head < _tail)
@@ -132,8 +132,7 @@ namespace NativeCollection.UnsafeType
             }
         }
 
-        NativeMemoryHelper.Free(_array);
-        NativeMemoryHelper.RemoveNativeMemoryByte(length * Unsafe.SizeOf<T>());
+        MemoryAllocator.Free(_array);
         _array = destinationArray;
         _head = 0;
         _tail = Count == capacity ? 0 : Count;
@@ -154,8 +153,7 @@ namespace NativeCollection.UnsafeType
     {
         if (_array!=null)
         {
-            NativeMemoryHelper.Free(_array);
-            NativeMemoryHelper.RemoveNativeMemoryByte(length * Unsafe.SizeOf<T>());
+            MemoryAllocator.Free(_array);
         }
     }
 }

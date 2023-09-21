@@ -125,8 +125,7 @@ namespace NativeCollection
         if (_list!=null)
         {
             _list->Dispose();
-            NativeMemoryHelper.Free(_list);
-            NativeMemoryHelper.RemoveNativeMemoryByte(Unsafe.SizeOf<UnsafeType.List<T>>());
+            MemoryAllocator.Free(_list);
             IsDisposed = true;
         }
     }

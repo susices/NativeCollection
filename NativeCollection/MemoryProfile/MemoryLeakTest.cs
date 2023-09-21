@@ -9,7 +9,8 @@ public class MemoryLeakTest
     [Fact]
     public void ListMemoryLeak()
     {
-        var initMemory = NativeMemoryHelper.GetNativeMemoryBytes();
+        MemoryAllocator.TryDefaultInit();
+        var initMemory = MemoryAllocator.GetUsedMemorySize();
 
         NativeCollection.List<int> list = new NativeCollection.List<int>();
         
@@ -30,7 +31,7 @@ public class MemoryLeakTest
         
         list.Dispose();
         
-        var memory = NativeMemoryHelper.GetNativeMemoryBytes();
+        var memory = MemoryAllocator.GetUsedMemorySize();
         memory.Should().Be(initMemory);
     }
     
@@ -208,7 +209,6 @@ public class MemoryLeakTest
         for (int i = 0; i < 10000; i++)
         {
             unOrderMap.Add(i,1);
-            
         }
         for (int i = 0; i < 10000; i++)
         {

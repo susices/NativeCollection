@@ -44,8 +44,7 @@ namespace NativeCollection
             if (_map != null)
             {
                 _map->Dispose();
-                NativeMemoryHelper.Free(_map);
-                NativeMemoryHelper.RemoveNativeMemoryByte(Unsafe.SizeOf<UnsafeType.Map<T, K>>());
+                MemoryAllocator.Free(_map);
                 IsDisposed = true;
             }
         }

@@ -50,7 +50,16 @@ namespace NativeCollection
         /// </summary>
         private static MemoryCache** CacheTableBig;
         private static uint CacheTableBigLength;
-        
+
+        /// <summary>
+        /// 内存分配器中 所有已分配的内存大小
+        /// </summary>
+        private static long UsedMemorySize;
+
+        /// <summary>
+        /// 内存分配器中 未分配的内存大小
+        /// </summary>
+        private static long FreeMemorySize;
         
         // private static int[] Z = { 24, 40, 48, 56, 80, 96, 112, 160, 192, 224, 330, -1 };
         
@@ -74,6 +83,8 @@ namespace NativeCollection
                 CachedSlabCount = cachedSlabCount;
                 UsedInMultiThread = usedInMultiThread;
                 CacheLockObjs = new System.Collections.Generic.List<object>();
+                UsedMemorySize = 0;
+                FreeMemorySize = 0;
                 InitCaches();
                 IsInited = true;
             }
@@ -84,16 +95,16 @@ namespace NativeCollection
         /// </summary>
         public static void* Alloc(uint size)
         {
-            Debug.Assert(IsInited);
             TryDefaultInit();
-            if (size==0) size = 1;
-            if (size>MaxAllocSize)
-            {
-                return AllocBigObj(size);
-            }
-            var cache = GetCacheByItemSize(size);
-            Debug.Assert(cache!=null);
-            return cache->Alloc();
+            return InternalAlloc(size, false);
+        }
+
+        /// <summary>
+        /// 申请指定长度的内存 并初始化字节为0
+        /// </summary>
+        public static void* AllocZeroed(uint size)
+        {
+            return InternalAlloc(size, true);
         }
         
         /// <summary>
@@ -101,7 +112,6 @@ namespace NativeCollection
         /// </summary>
         public static void Free(void* freePrt)
         {
-            Debug.Assert(freePrt!=null);
             TryDefaultInit();
             var listNodeSize = Unsafe.SizeOf<MemoryCache.ListNode>();
             var listNode = *(MemoryCache.ListNode*)((byte*)freePrt - listNodeSize);
@@ -111,6 +121,7 @@ namespace NativeCollection
                 nuint size = *(nuint*)realPtr;
                 NativeMemoryHelper.Free(realPtr);
                 NativeMemoryHelper.RemoveNativeMemoryByte((long)size);
+                Interlocked.Add(ref UsedMemorySize, -(long)size);
                 return;
             }
             
@@ -118,6 +129,7 @@ namespace NativeCollection
             Debug.Assert(cache->ItemSize == listNode.ParentSlab->ItemSize);
             Debug.Assert(cache!=null);
             cache->Free(freePrt);
+            Interlocked.Add(ref UsedMemorySize, -cache->ItemSize);
         }
 
         /// <summary>
@@ -167,16 +179,30 @@ namespace NativeCollection
                 }
             }
         }
+
+        public static long GetUsedMemorySize()
+        {
+            return UsedMemorySize;
+        }
         
         /// <summary>
         /// 大尺寸对象内存申请
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void* AllocBigObj(nuint size)
+        private static void* AllocBigObj(nuint size,bool zeroed)
         {
             var listNodeSize = Unsafe.SizeOf<MemoryCache.ListNode>();
             var realSize = size + (nuint)(listNodeSize + Unsafe.SizeOf<nuint>());
-            byte* ptr =  (byte*)NativeMemoryHelper.Alloc(realSize);
+            byte* ptr;
+            if (zeroed)
+            {
+                ptr =  (byte*)NativeMemoryHelper.AllocZeroed(realSize);
+            }
+            else
+            {
+                ptr =  (byte*)NativeMemoryHelper.Alloc(realSize);
+            }
+            
             *(nuint*)ptr = realSize;
             ptr += Unsafe.SizeOf<nuint>();
             ((MemoryCache.ListNode*)ptr)->ParentSlab = null;
@@ -283,12 +309,30 @@ namespace NativeCollection
         /// 未手动初始化时执行
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void TryDefaultInit()
+        internal static void TryDefaultInit()
         {
             if (!IsInited)
             {
                 Init(8,8*1024,3,true);
             }
+        }
+
+        private static void* InternalAlloc(uint size, bool zeroed)
+        {
+            if (size==0) size = 1;
+            if (size>MaxAllocSize)
+            {
+                return AllocBigObj(size,zeroed);
+            }
+            var cache = GetCacheByItemSize(size);
+            Debug.Assert(cache!=null);
+            var ptr = cache->Alloc();
+            if (zeroed)
+            {
+                Unsafe.InitBlockUnaligned(ptr,0,size);
+            }
+            Interlocked.Add(ref UsedMemorySize, size);
+            return ptr;
         }
     }
 }

@@ -95,18 +95,7 @@ namespace NativeCollection.UnsafeType
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Node* Create(in T item, NodeColor nodeColor)
         {
-            var node = (Node*)NativeMemoryHelper.Alloc((UIntPtr)Unsafe.SizeOf<Node>());
-            node->Item = item;
-            node->Color = nodeColor;
-            node->Left = null;
-            node->Right = null;
-            return node;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Node* AllocFromMemoryPool(in T item, NodeColor nodeColor, MemoryCache* memoryPool)
-        {
-            Node* node = (Node*)memoryPool->Alloc();
+            Node* node = (Node*)MemoryAllocator.Alloc((uint)Unsafe.SizeOf<Node>());
             node->Item = item;
             node->Color = nodeColor;
             node->Left = null;
@@ -170,8 +159,7 @@ namespace NativeCollection.UnsafeType
             }
 
             pendingNodes->Dispose();
-            NativeMemoryHelper.Free(pendingNodes);
-            NativeMemoryHelper.RemoveNativeMemoryByte(Unsafe.SizeOf<UnsafeType.Stack<NodeSourceTarget>>());
+            MemoryAllocator.Free(pendingNodes);
             return newRoot;
         }
 

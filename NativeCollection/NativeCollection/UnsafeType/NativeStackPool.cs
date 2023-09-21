@@ -15,7 +15,7 @@ namespace NativeCollection.UnsafeType
         private Stack<IntPtr>* _stack;
         public static NativeStackPool<T>* Create(int maxPoolSize)
         {
-            NativeStackPool<T>* pool = (NativeStackPool<T>*)NativeMemoryHelper.Alloc((UIntPtr)Unsafe.SizeOf<NativeStackPool<T>>());
+            NativeStackPool<T>* pool = (NativeStackPool<T>*)MemoryAllocator.Alloc((uint)Unsafe.SizeOf<NativeStackPool<T>>());
             pool->_stack = Stack<IntPtr>.Create();
             pool->MaxSize = maxPoolSize;
             return pool;
@@ -39,8 +39,7 @@ namespace NativeCollection.UnsafeType
             if (_stack->Count>=MaxSize)
             {
                 ptr->Dispose();
-                NativeMemoryHelper.Free(ptr);
-                NativeMemoryHelper.RemoveNativeMemoryByte(Unsafe.SizeOf<T>());
+                MemoryAllocator.Free(ptr);
                 return;
             }
             ptr->OnReturnToPool();
@@ -59,8 +58,7 @@ namespace NativeCollection.UnsafeType
             {
                 T* item = (T*)ptr;
                 item->Dispose();
-                NativeMemoryHelper.Free(item);
-                NativeMemoryHelper.RemoveNativeMemoryByte(Unsafe.SizeOf<T>());
+                MemoryAllocator.Free(item);
             }
         }
     
@@ -68,8 +66,7 @@ namespace NativeCollection.UnsafeType
         {
             Clear();
             _stack->Dispose();
-            NativeMemoryHelper.Free(_stack);
-            NativeMemoryHelper.RemoveNativeMemoryByte(Unsafe.SizeOf<Stack<T>>());
+            MemoryAllocator.Free(_stack);
         }
     }
 }

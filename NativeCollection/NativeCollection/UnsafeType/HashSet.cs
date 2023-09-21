@@ -37,7 +37,7 @@ namespace NativeCollection.UnsafeType
 
     public static HashSet<T>* Create(int capacity = 0)
     {
-        HashSet<T>* hashSet = (HashSet<T>*)NativeMemoryHelper.Alloc((UIntPtr)Unsafe.SizeOf<HashSet<T>>());
+        HashSet<T>* hashSet = (HashSet<T>*)MemoryAllocator.Alloc((uint)Unsafe.SizeOf<HashSet<T>>());
         hashSet->_buckets = null;
         hashSet->_entries = null;
         hashSet->_self = hashSet;
@@ -209,11 +209,8 @@ namespace NativeCollection.UnsafeType
 
     public void Dispose()
     {
-        NativeMemoryHelper.Free(_buckets);
-        NativeMemoryHelper.RemoveNativeMemoryByte(Unsafe.SizeOf<int>()*_bucketLength);
-        
-        NativeMemoryHelper.Free(_entries);
-        NativeMemoryHelper.RemoveNativeMemoryByte(Unsafe.SizeOf<Entry>()*_entryLength);
+        MemoryAllocator.Free(_buckets);
+        MemoryAllocator.Free(_entries);
     }
     
     #region Helper methods
@@ -225,9 +222,9 @@ namespace NativeCollection.UnsafeType
     private int Initialize(int capacity)
     {
         int size = HashHelpers.GetPrime(capacity);
-        _buckets = (int*)NativeMemoryHelper.AllocZeroed((UIntPtr)(Unsafe.SizeOf<int>() * size));
+        _buckets = (int*)MemoryAllocator.AllocZeroed((uint)(Unsafe.SizeOf<int>() * size));
         _bucketLength = size;
-        _entries = (Entry*)NativeMemoryHelper.AllocZeroed((UIntPtr)(Unsafe.SizeOf<Entry>() * size));
+        _entries = (Entry*)MemoryAllocator.AllocZeroed((uint)(Unsafe.SizeOf<Entry>() * size));
         _entryLength = size;
         // Assign member variables after both arrays are allocated to guard against corruption from OOM if second fails.
         _freeList = -1;
@@ -375,13 +372,12 @@ namespace NativeCollection.UnsafeType
             Debug.Assert(_entries != null, "_entries should be non-null");
             Debug.Assert(newSize >= _entryLength);
             // Console.WriteLine($"Resize newSize:{newSize} byteSize:{Unsafe.SizeOf<Entry>() * newSize}");
-            var newEntries = (Entry*)NativeMemoryHelper.AllocZeroed((UIntPtr)(Unsafe.SizeOf<Entry>() * newSize));
+            var newEntries = (Entry*)MemoryAllocator.AllocZeroed((uint)(Unsafe.SizeOf<Entry>() * newSize));
             Unsafe.CopyBlockUnaligned(newEntries,_entries,(uint)(Unsafe.SizeOf<Entry>()*_entryLength));
             int count = _count;
             // Assign member variables after both arrays allocated to guard against corruption from OOM if second fails
-            var newBucket = (int*)NativeMemoryHelper.AllocZeroed((UIntPtr)(Unsafe.SizeOf<int>() * newSize));
-            NativeMemoryHelper.Free(_buckets);
-            NativeMemoryHelper.RemoveNativeMemoryByte(Unsafe.SizeOf<int>()*_bucketLength);
+            var newBucket = (int*)MemoryAllocator.AllocZeroed((uint)(Unsafe.SizeOf<int>() * newSize));
+            MemoryAllocator.Free(_buckets);
             _buckets = newBucket;
             _bucketLength = newSize;
 #if TARGET_64BIT
@@ -398,8 +394,7 @@ namespace NativeCollection.UnsafeType
                     bucket = i + 1;
                 }
             }
-            NativeMemoryHelper.Free(_entries);
-            NativeMemoryHelper.RemoveNativeMemoryByte(Unsafe.SizeOf<Entry>()*_entryLength);
+            MemoryAllocator.Free(_entries);
             _entries = newEntries;
             _entryLength = newSize;
             

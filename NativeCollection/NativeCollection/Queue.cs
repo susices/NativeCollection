@@ -26,8 +26,7 @@ namespace NativeCollection
             if (_queue != null)
             {
                 _queue->Dispose();
-                NativeMemoryHelper.Free(_queue);
-                NativeMemoryHelper.RemoveNativeMemoryByte(Unsafe.SizeOf<UnsafeType.Queue<T>>());
+                MemoryAllocator.Free(_queue);
                 IsDisposed = true;
             }
         }

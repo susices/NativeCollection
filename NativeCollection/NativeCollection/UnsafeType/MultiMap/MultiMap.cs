@@ -16,8 +16,8 @@ namespace NativeCollection.UnsafeType
 
     public static MultiMap<T, K>* Create(int poolBlockSize,int listPoolSize)
     {
-        MultiMap<T, K>* multiMap = (MultiMap<T, K>*)NativeMemoryHelper.Alloc((UIntPtr)Unsafe.SizeOf<MultiMap<T, K>>());
-        multiMap->_sortedSet = UnsafeType.SortedSet<MultiMapPair<T, K>>.Create(poolBlockSize);
+        MultiMap<T, K>* multiMap = (MultiMap<T, K>*)MemoryAllocator.Alloc((uint)Unsafe.SizeOf<MultiMap<T, K>>());
+        multiMap->_sortedSet = SortedSet<MultiMapPair<T, K>>.Create(poolBlockSize);
         multiMap->_listMemoryPool = MemoryCache.CreateForMemoryPool((uint)poolBlockSize,(uint)Unsafe.SizeOf<List<K>>());
         multiMap->_listStackPool = NativeStackPool<List<K>>.Create(listPoolSize);
         return multiMap;
@@ -132,15 +132,13 @@ namespace NativeCollection.UnsafeType
         {
             Clear();
             _sortedSet->Dispose();
-            NativeMemoryHelper.Free(_sortedSet);
-            NativeMemoryHelper.RemoveNativeMemoryByte(Unsafe.SizeOf<UnsafeType.SortedSet<MultiMapPair<T, K>>>());
+            MemoryAllocator.Free(_sortedSet);
         }
         
         if (_listStackPool!=null)
         {
             _listStackPool->Dispose();
-            NativeMemoryHelper.Free(_listStackPool);
-            NativeMemoryHelper.RemoveNativeMemoryByte(Unsafe.SizeOf<NativeStackPool<List<K>>>());
+            MemoryAllocator.Free(_listStackPool);
         }
 
         if (_listMemoryPool!=null)

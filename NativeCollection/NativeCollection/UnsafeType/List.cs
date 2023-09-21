@@ -21,12 +21,12 @@ namespace NativeCollection.UnsafeType
     {
         if (initialCapacity < 0) ThrowHelper.ListInitialCapacityException();
 
-        var list = (List<T>*)NativeMemoryHelper.Alloc((UIntPtr)Unsafe.SizeOf<List<T>>());
+        var list = (List<T>*)MemoryAllocator.Alloc((uint)Unsafe.SizeOf<List<T>>());
 
         if (initialCapacity < _defaultCapacity)
             initialCapacity = _defaultCapacity; // Simplify doubling logic in Push.
 
-        list->_items = (T*)NativeMemoryHelper.Alloc((UIntPtr)initialCapacity, (UIntPtr)Unsafe.SizeOf<T>());
+        list->_items = (T*)MemoryAllocator.Alloc((uint)initialCapacity*(uint)Unsafe.SizeOf<T>());
         list->_arrayLength = initialCapacity;
         list->Count = 0;
         list->self = list;
@@ -42,7 +42,7 @@ namespace NativeCollection.UnsafeType
         if (initialCapacity < _defaultCapacity)
             initialCapacity = _defaultCapacity; // Simplify doubling logic in Push.
 
-        list->_items = (T*)NativeMemoryHelper.Alloc((UIntPtr)initialCapacity, (UIntPtr)Unsafe.SizeOf<T>());
+        list->_items = (T*)MemoryAllocator.Alloc((uint)initialCapacity * (uint)Unsafe.SizeOf<T>());
         list->_arrayLength = initialCapacity;
         list->Count = 0;
         list->self = list;
@@ -73,11 +73,10 @@ namespace NativeCollection.UnsafeType
             {
                 if (value > 0)
                 {
-                    var newArray = (T*)NativeMemoryHelper.Alloc((UIntPtr)value, (UIntPtr)Unsafe.SizeOf<T>());
+                    var newArray = (T*)MemoryAllocator.Alloc((uint)value * (uint)Unsafe.SizeOf<T>());
                     if (Count > 0)
                         Unsafe.CopyBlockUnaligned(newArray, _items, (uint)(_arrayLength * Unsafe.SizeOf<T>()));
-                    NativeMemoryHelper.Free(_items);
-                    NativeMemoryHelper.RemoveNativeMemoryByte(Unsafe.SizeOf<T>() * _arrayLength);
+                    MemoryAllocator.Free(_items);
                     _items = newArray;
                     _arrayLength = value;
                 }
@@ -317,8 +316,7 @@ namespace NativeCollection.UnsafeType
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Dispose()
     {
-        NativeMemoryHelper.Free(_items);
-        NativeMemoryHelper.RemoveNativeMemoryByte(_arrayLength * Unsafe.SizeOf<T>());
+        MemoryAllocator.Free(_items);
     }
 
 

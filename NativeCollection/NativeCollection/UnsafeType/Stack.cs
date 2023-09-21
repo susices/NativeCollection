@@ -14,12 +14,12 @@ namespace NativeCollection.UnsafeType
     {
         if (initialCapacity < 0) ThrowHelper.StackInitialCapacityException();
 
-        var stack = (Stack<T>*)NativeMemoryHelper.Alloc((UIntPtr)System.Runtime.CompilerServices.Unsafe.SizeOf<Stack<T>>());
+        var stack = (Stack<T>*)MemoryAllocator.Alloc((uint)Unsafe.SizeOf<Stack<T>>());
         
         if (initialCapacity < _defaultCapacity)
             initialCapacity = _defaultCapacity; // Simplify doubling logic in Push.
 
-        stack->_array = (T*)NativeMemoryHelper.Alloc((UIntPtr)initialCapacity, (UIntPtr)System.Runtime.CompilerServices.Unsafe.SizeOf<T>());
+        stack->_array = (T*)MemoryAllocator.Alloc((uint)initialCapacity * (uint)Unsafe.SizeOf<T>());
         stack->ArrayLength = initialCapacity;
         stack->Count = 0;
         stack->_version = 0;
@@ -86,12 +86,11 @@ namespace NativeCollection.UnsafeType
     {
         if (Count == ArrayLength)
         {
-            var newArray = (T*)NativeMemoryHelper.Alloc((UIntPtr)(ArrayLength * 2), (UIntPtr)System.Runtime.CompilerServices.Unsafe.SizeOf<T>());
-            System.Runtime.CompilerServices.Unsafe.CopyBlockUnaligned(newArray, _array, (uint)(Count * System.Runtime.CompilerServices.Unsafe.SizeOf<T>()));
-            NativeMemoryHelper.Free(_array);
-            NativeMemoryHelper.RemoveNativeMemoryByte(ArrayLength * System.Runtime.CompilerServices.Unsafe.SizeOf<T>());
+            var newArray = (T*)MemoryAllocator.Alloc((uint)(ArrayLength * 2) * (uint)Unsafe.SizeOf<T>());
+            Unsafe.CopyBlockUnaligned(newArray, _array, (uint)(Count * Unsafe.SizeOf<T>()));
+            MemoryAllocator.Free(_array);
             _array = newArray;
-            ArrayLength = ArrayLength * 2;
+            ArrayLength *= 2;
         }
 
         _array[Count++] = obj;
@@ -100,8 +99,7 @@ namespace NativeCollection.UnsafeType
 
     public void Dispose()
     {
-        NativeMemoryHelper.Free(_array);
-        NativeMemoryHelper.RemoveNativeMemoryByte(ArrayLength * System.Runtime.CompilerServices.Unsafe.SizeOf<T>());
+        MemoryAllocator.Free(_array);
     }
 
     public void OnReturnToPool()

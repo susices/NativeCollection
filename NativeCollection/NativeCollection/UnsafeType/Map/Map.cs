@@ -12,7 +12,7 @@ namespace NativeCollection.UnsafeType
     
     public static Map<T, K>* Create(int poolBlockSize)
     {
-        Map<T, K>* map = (Map<T, K>*)NativeMemoryHelper.Alloc((UIntPtr)Unsafe.SizeOf<Map<T, K>>());
+        Map<T, K>* map = (Map<T, K>*)MemoryAllocator.Alloc((uint)Unsafe.SizeOf<Map<T, K>>());
         map->_sortedSet = UnsafeType.SortedSet<MapPair<T, K>>.Create(poolBlockSize);
         return map;
     }
@@ -104,8 +104,7 @@ namespace NativeCollection.UnsafeType
         if (_sortedSet != null)
         {
             _sortedSet->Dispose();
-            NativeMemoryHelper.Free(_sortedSet);
-            NativeMemoryHelper.RemoveNativeMemoryByte(Unsafe.SizeOf<UnsafeType.SortedSet<MapPair<T, K>>>());
+            MemoryAllocator.Free(_sortedSet);
         }
     }
 }

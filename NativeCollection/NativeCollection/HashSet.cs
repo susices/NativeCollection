@@ -70,8 +70,7 @@ namespace NativeCollection
         if (_hashSet!=null)
         {
             _hashSet->Dispose();
-            NativeMemoryHelper.Free(_hashSet);
-            NativeMemoryHelper.RemoveNativeMemoryByte(Unsafe.SizeOf<UnsafeType.HashSet<T>>());
+            MemoryAllocator.Free(_hashSet);
             IsDisposed = true;
         }
     }

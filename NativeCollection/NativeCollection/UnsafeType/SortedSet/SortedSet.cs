@@ -13,19 +13,17 @@ namespace NativeCollection.UnsafeType
     private SortedSet<T>* _self;
     private int _count;
     private Node* _root;
-    private MemoryCache* _nodeMemoryPool;
     private NativeStackPool<Stack<IntPtr>>* _stackPool;
     private int _version;
     private const int _defaultNodePoolBlockSize = 64;
     public static SortedSet<T>* Create(int nodePoolBlockSize = _defaultNodePoolBlockSize)
     {
-        var sortedSet = (SortedSet<T>*)NativeMemoryHelper.Alloc((UIntPtr)Unsafe.SizeOf<SortedSet<T>>());
+        var sortedSet = (SortedSet<T>*)MemoryAllocator.Alloc((uint)Unsafe.SizeOf<SortedSet<T>>());
         sortedSet->_self = sortedSet;
         sortedSet->_root = null;
         sortedSet->_count = 0;
         sortedSet->_version = 0;
         sortedSet->_stackPool = NativeStackPool<Stack<IntPtr>>.Create(2);
-        sortedSet->_nodeMemoryPool = MemoryCache.CreateForMemoryPool((uint)nodePoolBlockSize, (uint)Unsafe.SizeOf<Node>());
         return sortedSet;
     }
 
@@ -116,8 +114,7 @@ namespace NativeCollection.UnsafeType
         {
             if (enumerator.CurrentPointer != null)
             {
-                _nodeMemoryPool->Free(enumerator.CurrentPointer);
-                
+                MemoryAllocator.Free(enumerator.CurrentPointer);
             }
         } while (enumerator.MoveNext());
         
@@ -155,15 +152,9 @@ namespace NativeCollection.UnsafeType
         if (_stackPool!=null)
         {
             _stackPool->Dispose();
-            NativeMemoryHelper.Free(_stackPool);
-            NativeMemoryHelper.RemoveNativeMemoryByte(Unsafe.SizeOf<NativeStackPool<Stack<IntPtr>>>());
+            MemoryAllocator.Free(_stackPool);
         }
-
-        if (_nodeMemoryPool!=null)
-        {
-            _nodeMemoryPool->Dispose();
-            _nodeMemoryPool = null;
-        }
+        
         _version = 0;
     }
 
@@ -233,8 +224,7 @@ namespace NativeCollection.UnsafeType
             }
         }
         stack->Dispose();
-        NativeMemoryHelper.Free(stack);
-        NativeMemoryHelper.RemoveNativeMemoryByte(Unsafe.SizeOf<UnsafeType.Stack<IntPtr>>());
+        MemoryAllocator.Free(stack);
         return true;
     }
 
@@ -273,7 +263,7 @@ namespace NativeCollection.UnsafeType
         if (_root == null)
         {
             // The tree is empty and this is the first item.
-            _root = Node.AllocFromMemoryPool(item, NodeColor.Black,_nodeMemoryPool);
+            _root = Node.Create(item, NodeColor.Black);
             _count = 1;
             _version++;
             return true;
@@ -319,7 +309,7 @@ namespace NativeCollection.UnsafeType
 
         Debug.Assert(parent != null);
         // We're ready to insert the new node.
-        var node = Node.AllocFromMemoryPool(item, NodeColor.Red,_nodeMemoryPool);
+        var node = Node.Create(item, NodeColor.Red);
         if (order > 0)
             parent->Right = node;
         else
@@ -435,7 +425,7 @@ namespace NativeCollection.UnsafeType
             ReplaceNode(match, parentOfMatch!, parent!, grandParent!);
             --_count;
             //_nodePool->Return(match);
-            _nodeMemoryPool->Free(match);
+            MemoryAllocator.Free(match);
         }
 
         if (_root != null) _root->ColorBlack();

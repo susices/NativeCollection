@@ -82,8 +82,7 @@ namespace NativeCollection
         if (_sortedSet!=null)
         {
             _sortedSet->Dispose();
-            NativeMemoryHelper.Free(_sortedSet);
-            NativeMemoryHelper.RemoveNativeMemoryByte(Unsafe.SizeOf<UnsafeType.SortedSet<T>>());
+            MemoryAllocator.Free(_sortedSet);
             IsDisposed = true;
         }
     }

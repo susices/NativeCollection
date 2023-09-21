@@ -26,8 +26,7 @@ namespace NativeCollection
             if (_stack != null)
             {
                 _stack->Dispose();
-                NativeMemoryHelper.Free(_stack);
-                NativeMemoryHelper.RemoveNativeMemoryByte(Unsafe.SizeOf<UnsafeType.Stack<T>>());
+                MemoryAllocator.Free(_stack);
                 IsDisposed = true;
             }
         }
