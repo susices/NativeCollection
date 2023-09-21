@@ -9,11 +9,11 @@ namespace NativeCollection
     {
         public struct Slab : IDisposable
         {
-            public int BlockSize;
+            public uint BlockSize;
             
-            public int FreeSize;
+            public uint FreeSize;
 
-            public int ItemSize;
+            public uint ItemSize;
 
             public ListNode* FreeList;
 
@@ -27,10 +27,10 @@ namespace NativeCollection
                 get { return (Slab*)Unsafe.AsPointer(ref this); }
             }
 
-            public static Slab* Create(int blockSize,int itemSize,Slab* prevSlab , Slab* nextSlab )
+            public static Slab* Create(uint blockSize,uint itemSize,Slab* prevSlab , Slab* nextSlab )
             {
-                int size = itemSize + Unsafe.SizeOf<IntPtr>();
-                int slabSize =Unsafe.SizeOf<Slab>() + size * blockSize;
+                var size = itemSize + Unsafe.SizeOf<IntPtr>();
+                var slabSize =Unsafe.SizeOf<Slab>() + size * blockSize;
                 byte* slabBuffer  = (byte*)NativeMemoryHelper.Alloc((UIntPtr)slabSize);
                 Slab* slab = (Slab*)slabBuffer;
                 slab->BlockSize = blockSize;
@@ -42,7 +42,7 @@ namespace NativeCollection
 
                 ListNode* next = null;
                 
-                for (int i = blockSize-1; i >= 0; i--)
+                for (int i = (int)blockSize-1; i >= 0; i--)
                 {
                     ListNode* listNode = (ListNode*)(slabBuffer + i*size);
                     listNode->Next = next;
@@ -84,7 +84,7 @@ namespace NativeCollection
             
             public void Dispose()
             {
-                int slabSize =Unsafe.SizeOf<Slab>() + (ItemSize + Unsafe.SizeOf<IntPtr>()) * BlockSize;
+                var slabSize =Unsafe.SizeOf<Slab>() + (ItemSize + Unsafe.SizeOf<IntPtr>()) * BlockSize;
                 Slab* self = Self;
                 NativeMemoryHelper.Free(self);
                 NativeMemoryHelper.RemoveNativeMemoryByte(slabSize);

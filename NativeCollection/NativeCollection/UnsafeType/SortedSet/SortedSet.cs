@@ -25,7 +25,7 @@ namespace NativeCollection.UnsafeType
         sortedSet->_count = 0;
         sortedSet->_version = 0;
         sortedSet->_stackPool = NativeStackPool<Stack<IntPtr>>.Create(2);
-        sortedSet->_nodeMemoryPool = MemoryCache.Create(nodePoolBlockSize, Unsafe.SizeOf<Node>());
+        sortedSet->_nodeMemoryPool = MemoryCache.CreateForMemoryPool((uint)nodePoolBlockSize, (uint)Unsafe.SizeOf<Node>());
         return sortedSet;
     }
 
