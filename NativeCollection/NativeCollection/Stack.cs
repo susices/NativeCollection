@@ -27,6 +27,7 @@ namespace NativeCollection
             {
                 _stack->Dispose();
                 MemoryAllocator.Free(_stack);
+                _stack = null;
                 IsDisposed = true;
             }
         }

@@ -83,6 +83,7 @@ namespace NativeCollection
             
             _multiMap->Dispose();
             MemoryAllocator.Free(_multiMap);
+            _multiMap = null;
             IsDisposed = true;
         }
     }

@@ -105,6 +105,7 @@ namespace NativeCollection.UnsafeType
         {
             _sortedSet->Dispose();
             MemoryAllocator.Free(_sortedSet);
+            _sortedSet = null;
         }
     }
 }

@@ -88,6 +88,7 @@ private int _capacity;
             {
                 _unOrderMap->Dispose();
                 MemoryAllocator.Free(_unOrderMap);
+                _unOrderMap = null;
                 IsDisposed = true;
             }
         }

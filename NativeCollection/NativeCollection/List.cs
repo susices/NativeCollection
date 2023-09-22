@@ -126,6 +126,7 @@ namespace NativeCollection
         {
             _list->Dispose();
             MemoryAllocator.Free(_list);
+            _list = null;
             IsDisposed = true;
         }
     }

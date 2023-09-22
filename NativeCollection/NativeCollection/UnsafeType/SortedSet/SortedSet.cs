@@ -153,6 +153,7 @@ namespace NativeCollection.UnsafeType
         {
             _stackPool->Dispose();
             MemoryAllocator.Free(_stackPool);
+            _stackPool = null;
         }
         
         _version = 0;

@@ -191,6 +191,8 @@ public unsafe struct UnOrderMap<T,K> : IEnumerable<MapPair<T, K>>
     {
         MemoryAllocator.Free(_buckets);
         MemoryAllocator.Free(_entries);
+        _buckets = null;
+        _entries = null;
     }
     
     #region Helper methods

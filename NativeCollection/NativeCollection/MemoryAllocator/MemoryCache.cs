@@ -58,7 +58,6 @@ namespace NativeCollection
 
         public void* Alloc()
         {
-            Debug.Assert(InUsedSlabs.Top!=null && InUsedSlabs.Top->FreeSize>0);
             if (!MemoryAllocator.UsedInMultiThread || LockObjPtr== IntPtr.Zero)
             {
                 return AllocInternal();
@@ -83,6 +82,7 @@ namespace NativeCollection
             
             lock (LockObj)
             {
+                //Console.WriteLine($"lockObj: {(nuint)LockObjPtr.ToPointer()} slab:{slab->ItemSize}");
                 FreeInternal(slab, listNode);
             }
         }
@@ -118,6 +118,8 @@ namespace NativeCollection
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void* AllocInternal()
         {
+            Debug.Assert(InUsedSlabs.Top!=null && InUsedSlabs.Top->FreeSize>0, $"InUsedSlabs.Top!=null:{InUsedSlabs.Top!=null} InUsedSlabs.Top->FreeSize>0:{InUsedSlabs.Top->FreeSize}");
+
             byte* allocPtr = InUsedSlabs.Top->Alloc();
             
             if (InUsedSlabs.Top->IsAllAlloc())

@@ -45,6 +45,7 @@ namespace NativeCollection
             {
                 _map->Dispose();
                 MemoryAllocator.Free(_map);
+                _map = null;
                 IsDisposed = true;
             }
         }

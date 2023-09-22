@@ -38,6 +38,7 @@ namespace NativeCollection
             {
                 _nativePool->Dispose();
                 MemoryAllocator.Free(_nativePool);
+                _nativePool = null;
                 IsDisposed = true;
             }
         }

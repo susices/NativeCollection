@@ -38,7 +38,8 @@ public class MemoryLeakTest
     [Fact]
     public void QueueMemoryLeak()
     {
-        var initMemory = NativeMemoryHelper.GetNativeMemoryBytes();
+        MemoryAllocator.TryDefaultInit();
+        var initMemory = MemoryAllocator.GetUsedMemorySize();
 
         NativeCollection.Queue<int> queue = new NativeCollection.Queue<int>();
         
@@ -59,14 +60,15 @@ public class MemoryLeakTest
         
         queue.Dispose();
         
-        var memory = NativeMemoryHelper.GetNativeMemoryBytes();
-        memory.Should().Be(initMemory);
+        var memory = MemoryAllocator.GetUsedMemorySize();
+           memory.Should().Be(initMemory);
     }
     
     [Fact]
     public void StackMemoryLeak()
     {
-        var initMemory = NativeMemoryHelper.GetNativeMemoryBytes();
+        MemoryAllocator.TryDefaultInit();
+        var initMemory = MemoryAllocator.GetUsedMemorySize();
 
         NativeCollection.Stack<int> stack = new NativeCollection.Stack<int>();
         
@@ -87,14 +89,15 @@ public class MemoryLeakTest
         
         stack.Dispose();
         
-        var memory = NativeMemoryHelper.GetNativeMemoryBytes();
+        var memory = MemoryAllocator.GetUsedMemorySize();
         memory.Should().Be(initMemory);
     }
     
     [Fact]
     public void SortedSetMemoryLeak()
     {
-        var initMemory = NativeMemoryHelper.GetNativeMemoryBytes();
+        MemoryAllocator.TryDefaultInit();
+        var initMemory = MemoryAllocator.GetUsedMemorySize();
 
         NativeCollection.SortedSet<int> sortedSet = new NativeCollection.SortedSet<int>();
         
@@ -109,14 +112,15 @@ public class MemoryLeakTest
         
         sortedSet.Dispose();
         
-        var memory = NativeMemoryHelper.GetNativeMemoryBytes();
+        var memory = MemoryAllocator.GetUsedMemorySize();
         memory.Should().Be(initMemory);
     }
     
     [Fact]
     public void MultiMapMemoryLeak()
     {
-        var initMemory = NativeMemoryHelper.GetNativeMemoryBytes();
+        MemoryAllocator.TryDefaultInit();
+        var initMemory = MemoryAllocator.GetUsedMemorySize();
        
         MultiMap<int, int> multiMap = new (1000);
         
@@ -133,7 +137,7 @@ public class MemoryLeakTest
         
         multiMap.Dispose();
         
-        var memory = NativeMemoryHelper.GetNativeMemoryBytes();
+        var memory = MemoryAllocator.GetUsedMemorySize();
         memory.Should().Be(initMemory);
         
         multiMap.ReInit();
@@ -147,14 +151,15 @@ public class MemoryLeakTest
          }
          multiMap.Clear();
          multiMap.Dispose();
-         memory = NativeMemoryHelper.GetNativeMemoryBytes();
+         memory = MemoryAllocator.GetUsedMemorySize();
          memory.Should().Be(initMemory);
     }
     
     [Fact]
     public void MapMemoryLeak()
     {
-        var initMemory = NativeMemoryHelper.GetNativeMemoryBytes();
+        MemoryAllocator.TryDefaultInit();
+        var initMemory = MemoryAllocator.GetUsedMemorySize();
        
         Map<int, int> map = new ();
         
@@ -171,14 +176,15 @@ public class MemoryLeakTest
         
         map.Dispose();
         
-        var memory = NativeMemoryHelper.GetNativeMemoryBytes();
+        var memory = MemoryAllocator.GetUsedMemorySize();
         memory.Should().Be(initMemory);
     }
     
     [Fact]
     public void HashSetMemoryLeak()
     {
-        var initMemory = NativeMemoryHelper.GetNativeMemoryBytes();
+        MemoryAllocator.TryDefaultInit();
+        var initMemory = MemoryAllocator.GetUsedMemorySize();
 
         NativeCollection.HashSet<int> hashSet = new ();
         
@@ -193,14 +199,15 @@ public class MemoryLeakTest
         
         hashSet.Dispose();
         
-        var memory = NativeMemoryHelper.GetNativeMemoryBytes();
+        var memory = MemoryAllocator.GetUsedMemorySize();
         memory.Should().Be(initMemory);
     }
     
     [Fact]
     public void UnOrderMapMemoryLeak()
     {
-        var initMemory = NativeMemoryHelper.GetNativeMemoryBytes();
+        MemoryAllocator.TryDefaultInit();
+        var initMemory = MemoryAllocator.GetUsedMemorySize();
 
         NativeCollection.UnOrderMap<int,int> unOrderMap = new ();
         
@@ -219,7 +226,7 @@ public class MemoryLeakTest
         
         unOrderMap.Dispose();
         
-        var memory = NativeMemoryHelper.GetNativeMemoryBytes();
+        var memory = MemoryAllocator.GetUsedMemorySize();
         memory.Should().Be(initMemory);
     }
 }

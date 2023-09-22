@@ -317,6 +317,7 @@ namespace NativeCollection.UnsafeType
     public void Dispose()
     {
         MemoryAllocator.Free(_items);
+        _items = null;
     }
 
 

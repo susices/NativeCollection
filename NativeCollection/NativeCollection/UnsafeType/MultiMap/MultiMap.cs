@@ -133,12 +133,14 @@ namespace NativeCollection.UnsafeType
             Clear();
             _sortedSet->Dispose();
             MemoryAllocator.Free(_sortedSet);
+            _sortedSet = null;
         }
         
         if (_listStackPool!=null)
         {
             _listStackPool->Dispose();
             MemoryAllocator.Free(_listStackPool);
+            _listStackPool = null;
         }
 
         if (_listMemoryPool!=null)

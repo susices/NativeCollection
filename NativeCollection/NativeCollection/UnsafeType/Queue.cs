@@ -154,6 +154,7 @@ namespace NativeCollection.UnsafeType
         if (_array!=null)
         {
             MemoryAllocator.Free(_array);
+            _array = null;
         }
     }
 }

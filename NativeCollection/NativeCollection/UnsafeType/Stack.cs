@@ -100,6 +100,7 @@ namespace NativeCollection.UnsafeType
     public void Dispose()
     {
         MemoryAllocator.Free(_array);
+        _array = null;
     }
 
     public void OnReturnToPool()

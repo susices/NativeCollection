@@ -83,6 +83,7 @@ namespace NativeCollection
         {
             _sortedSet->Dispose();
             MemoryAllocator.Free(_sortedSet);
+            _sortedSet = null;
             IsDisposed = true;
         }
     }

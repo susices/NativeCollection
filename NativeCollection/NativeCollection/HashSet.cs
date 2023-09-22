@@ -71,6 +71,7 @@ namespace NativeCollection
         {
             _hashSet->Dispose();
             MemoryAllocator.Free(_hashSet);
+            _hashSet = null;
             IsDisposed = true;
         }
     }

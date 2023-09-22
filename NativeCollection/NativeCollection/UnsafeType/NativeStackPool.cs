@@ -67,6 +67,7 @@ namespace NativeCollection.UnsafeType
             Clear();
             _stack->Dispose();
             MemoryAllocator.Free(_stack);
+            _stack = null;
         }
     }
 }

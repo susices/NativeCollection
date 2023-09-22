@@ -27,6 +27,7 @@ namespace NativeCollection
             {
                 _queue->Dispose();
                 MemoryAllocator.Free(_queue);
+                _queue = null;
                 IsDisposed = true;
             }
         }
