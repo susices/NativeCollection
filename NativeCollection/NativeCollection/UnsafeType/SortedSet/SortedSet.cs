@@ -14,7 +14,6 @@ namespace NativeCollection.UnsafeType
     private int _count;
     private Node* _root;
     private FixedSizeMemoryPool* _nodeMemoryPool;
-    private NativeStackPool<Stack<IntPtr>>* _stackPool;
     private int _version;
     private const int _defaultNodePoolBlockSize = 64;
     public static SortedSet<T>* Create(int nodePoolBlockSize = _defaultNodePoolBlockSize)
@@ -24,7 +23,6 @@ namespace NativeCollection.UnsafeType
         sortedSet->_root = null;
         sortedSet->_count = 0;
         sortedSet->_version = 0;
-        sortedSet->_stackPool = NativeStackPool<Stack<IntPtr>>.Create(2);
         sortedSet->_nodeMemoryPool = FixedSizeMemoryPool.Create(nodePoolBlockSize, Unsafe.SizeOf<Node>());
         return sortedSet;
     }
@@ -124,7 +122,6 @@ namespace NativeCollection.UnsafeType
         _root = null;
         _count = 0;
         ++_version;
-        _stackPool->Clear();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -152,12 +149,6 @@ namespace NativeCollection.UnsafeType
     public void Dispose()
     {
         Clear();
-        if (_stackPool!=null)
-        {
-            _stackPool->Dispose();
-            NativeMemoryHelper.Free(_stackPool);
-            NativeMemoryHelper.RemoveNativeMemoryByte(Unsafe.SizeOf<NativeStackPool<Stack<IntPtr>>>());
-        }
 
         if (_nodeMemoryPool!=null)
         {
@@ -593,12 +584,8 @@ namespace NativeCollection.UnsafeType
             _version = set->_version;
 
             // 2 log(n + 1) is the maximum height.
-
-            _stack = set->_stackPool->Alloc();
-            if (_stack==null)
-            {
-                _stack = UnsafeType.Stack<IntPtr>.Create(2 * Log2(set->TotalCount() + 1));
-            }
+            
+            _stack = UnsafeType.Stack<IntPtr>.Create(2 * Log2(set->TotalCount() + 1));
             CurrentPointer = null;
             _reverse = reverse;
             Initialize();
@@ -662,7 +649,7 @@ namespace NativeCollection.UnsafeType
                 }
                 else
                 {
-                    node = other;
+                    node = other;  
                 }
             }
 
@@ -677,7 +664,9 @@ namespace NativeCollection.UnsafeType
             //
             // NativeMemoryHelper.Free(_stack);
             // GC.RemoveMemoryPressure(Unsafe.SizeOf<NativeCollection.Stack<IntPtr>>());
-            _tree->_stackPool->Return(_stack);
+            _stack->Dispose();
+            NativeMemoryHelper.Free(_stack);
+            NativeMemoryHelper.RemoveNativeMemoryByte(Unsafe.SizeOf<Stack<T>>());
         }
 
         public T Current

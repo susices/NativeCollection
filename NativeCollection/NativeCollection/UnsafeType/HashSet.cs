@@ -80,7 +80,7 @@ namespace NativeCollection.UnsafeType
             Debug.Assert(_buckets != null, "_buckets should be non-null");
             Debug.Assert(_entries != null, "_entries should be non-null");
             Unsafe.InitBlockUnaligned(_buckets,0,(uint)(Unsafe.SizeOf<int>()*_bucketLength));
-            Unsafe.InitBlockUnaligned(_entries,0,(uint)(Unsafe.SizeOf<int>()*count));
+            Unsafe.InitBlockUnaligned(_entries,0,(uint)(Unsafe.SizeOf<Entry>()*count));
             _count = 0;
             _freeList = -1;
             _freeCount = 0;
